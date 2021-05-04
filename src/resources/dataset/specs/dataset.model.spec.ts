@@ -1,4 +1,4 @@
-import { DatasetModel } from './dataset.model';
+import { DatasetModel } from '../models/dataset.model';
 
 describe('DatasetModel', () => {
   it('should be defined', () => {
