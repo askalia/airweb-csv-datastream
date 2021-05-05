@@ -5,13 +5,14 @@ import { IFormatter } from './iformatter.model';
 import { Snapshot } from './snapshot.model';
 import { IFormatterFormat } from './iformatter-format.model';
 import { validateFileFormat } from './helpers/formatter.helper';
+
 @Injectable()
 export class FormatterFactoryService {
   private readonly _formatHelpersMap: Map<FormatsAllowed, IFormatter>;
 
   constructor() {
     this._formatHelpersMap = new Map<FormatsAllowed, IFormatter>();
-    this._formatHelpersMap.set(FormatsAllowed.CSV, CSVFormatterHelper(this));
+    this._formatHelpersMap.set(FormatsAllowed.CSV, CSVFormatterHelper);
   }
   public format<T>(
     snapshot: Snapshot<T>,

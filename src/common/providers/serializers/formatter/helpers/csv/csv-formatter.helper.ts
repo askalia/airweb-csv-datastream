@@ -1,20 +1,17 @@
 import { ExportToCsv } from 'export-to-csv';
 import { IFormatter } from '../../iformatter.model';
-import { FormatterFactoryService } from '../../formatter.factory';
 import { Snapshot } from '../../snapshot.model';
 import { FormatsAllowed } from '../../formats-allowed.model';
 import { IFormatterFormat } from '../../iformatter-format.model';
+import { registerFormatter } from '../formatters-registry';
 
-export const CSVFormatterHelper = (
-  factory: FormatterFactoryService,
-): IFormatter => {
-  if (!factory) {
-    throw new Error('this Helper cannot be used wihout its factory');
-  }
+const ID = 'csv';
+const FILE_EXT = '.csv';
+const MIME = FormatsAllowed.CSV;
 
-  const FILE_EXT = '.csv';
-
-  const format = async <T>(
+export const CSVFormatterHelper: IFormatter = {
+  id: ID,
+  format: async <T>(
     snapshot: Snapshot<T>,
     snapshotTypeName: string,
   ): Promise<IFormatterFormat> => {
@@ -30,14 +27,13 @@ export const CSVFormatterHelper = (
       useKeysAsHeaders: true,
       // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
     };
-    return {
-      filename: `${snapshotTypeName}-${new Date().getTime()}.csv`,
-      stream: new ExportToCsv(options).generateCsv(snapshot, true),
-      contentType: FormatsAllowed.CSV,
-    };
-  };
 
-  return {
-    format,
-  };
+    return {
+      filename: options.title,
+      stream: new ExportToCsv(options).generateCsv(snapshot, true),
+      contentType: MIME,
+    };
+  },
 };
+
+export const registerCSV = () => registerFormatter(ID, CSVFormatterHelper);

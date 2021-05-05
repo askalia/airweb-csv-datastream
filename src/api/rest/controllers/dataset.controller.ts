@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   Headers,
+  Query,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 
@@ -24,15 +25,19 @@ export class DatasetController {
 
   @Get('/:datasetType')
   async findAll(
-    @Param('datasetType') datasetType: DatasetType,
-    @Headers('Accept') headerAccept: FormatsAllowed | string,
-    @Response() httpResponse: FastifyReply,
+    @Param('datasetType')
+    datasetType: DatasetType,
+    //@Query('format') format: 'csv',
+    @Headers('Accept')
+    headerAccept: FormatsAllowed | string,
+    @Response()
+    httpResponse: FastifyReply,
   ) {
     try {
       const snapshot = await this._datasetFetcher.fetch(datasetType);
-
       // output as downloable file
-      if (formatterHelpers.validateFileFormat(headerAccept)) {
+      console.log(formatterHelpers.getFileFormatFromHttpHeader(headerAccept));
+      if (formatterHelpers.isFileOutputExpected(headerAccept)) {
         const {
           contentType,
           filename,

@@ -6,6 +6,11 @@ export function validateFileFormat(formatType: string | string[]): boolean {
   return clientFormat.some((cf) => lookupFormats.includes(cf));
 }
 
+export function isFileOutputExpected(httpAcceptHeader: string) {
+  const fileFormat = getFileFormatFromHttpHeader(httpAcceptHeader);
+  return validateFileFormat(fileFormat);
+}
+
 export function getFileFormatFromHttpHeader(
   httpAcceptHeader: string,
 ): FormatsAllowed {
@@ -23,4 +28,5 @@ export function getFileFormatFromHttpHeader(
 export default {
   validateFileFormat,
   getFileFormatFromHttpHeader,
+  isFileOutputExpected
 };
