@@ -1,7 +1,5 @@
-import { FormatsAllowed } from './formats-allowed.model';
-
 export interface IFormatterFormat {
   filename?: string;
-  contentType: FormatsAllowed;
+  contentType: string;
   formattedStream: string | Buffer | any;
 }

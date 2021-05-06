@@ -1,1 +1,3 @@
-export * from './formatter-registry.service';
+export * from './formatter.service';
+
+export * from './models';

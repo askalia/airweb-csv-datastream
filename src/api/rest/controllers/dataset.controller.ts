@@ -5,48 +5,37 @@ import {
   Response,
   Get,
   Param,
-  Headers,
   Query,
   NotFoundException,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 
-import { FormatsAllowed } from '../../../domain/formatter/models/formats-allowed.model';
-import formatterHelpers from '../../../common/providers/serializers/formatter/helpers/formatter.helper';
-import { IDataset } from 'src/domain/dataset/models/dataset.abstract.model';
-import { DatasetRegistry } from 'src/domain/dataset/dataset-registry.service';
-import { FormatterRegistry } from 'src/domain/formatter';
-import { DatasetFilters } from 'src/domain/dataset/models/dataset-filers.model';
+import { IDatasetMetadata, DatasetService } from '../../../domain/dataset';
+import { FormatterService } from '../../../domain/formatter';
 
 @Controller('datasets')
 export class DatasetController {
   constructor(
-    private readonly _datasetRegistry: DatasetRegistry,
-    private readonly _formatterRegistry: FormatterRegistry,
+    private readonly _datasetService: DatasetService,
+    private readonly _formatterService: FormatterService,
   ) {}
 
   @Get('/:datasetId/export')
   async findDataset(
-    @Param('datasetId')
-    datasetId: string,
-    //@Query('format') format: 'csv',
-    @Query('format')
-    formatExpected: keyof typeof FormatsAllowed | string,
-    @Query('filters')
-    filters: string,
-    @Response()
-    httpResponse: FastifyReply,
+    @Param('datasetId') datasetId: IDatasetMetadata['id'],
+    @Query('format') formatExpected: string,
+    @Query('filters') filters: string,
+    @Response() httpResponse: FastifyReply,
   ) {
-    console.log('filters : ', `|${filters}|`);
     try {
-      if (!this._formatterRegistry.validateFormat(formatExpected)) {
+      if (!this._formatterService.validateFormat(formatExpected)) {
         throw new BadRequestException(
           `format '${formatExpected}' is empty or not supported. Please check supported formats : ${process.env.HOST_URL}/formats`,
         );
       }
 
-      const dataset = this._datasetRegistry.getById(datasetId);
-      if (!this._datasetRegistry.validateDataset(dataset)) {
+      const dataset = this._datasetService.getDatasetById(datasetId);
+      if (!this._datasetService.validateDataset(dataset)) {
         throw new NotFoundException(
           `Dataset '${datasetId}' not found. Please check available Datasets : ${process.env.HOST_URL}/datasets`,
         );
@@ -56,7 +45,7 @@ export class DatasetController {
         filters: JSON.parse(filters || '{}'),
       });
 
-      const formatter = this._formatterRegistry.getById(formatExpected);
+      const formatter = this._formatterService.getFormatterById(formatExpected);
       const { formattedStream, contentType } = await formatter.format(
         dataStream,
       );
@@ -72,6 +61,6 @@ export class DatasetController {
 
   @Get('/')
   async listDatasets() {
-    return this._datasetRegistry.listAllIds();
+    return this._datasetService.listAllIds();
   }
 }

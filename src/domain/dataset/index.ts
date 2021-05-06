@@ -1,2 +1,2 @@
-export * from './dataset-registry.service';
-export * from './dataset.helpers';
+export * from './dataset.service';
+export * from './models';

@@ -1,27 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/providers/db/prisma.service';
+import { PrismaService } from '../../common/db/prisma.service';
 import { IDataset, IDatasetMetadata } from './models/dataset.abstract.model';
 
-import { OrdersLimit10Dataset } from './datasets/orders-limit-10.dataset';
+import { OrdersDataset } from './datasets/orders.dataset';
 
 @Injectable()
-export class DatasetRegistry {
+export class DatasetService {
   private registry: Map<string, any> = new Map<string, any>();
   constructor(
     @Inject('PrismaService')
     private readonly orm: PrismaService,
   ) {
-    const datasets = [OrdersLimit10Dataset];
-    this._register(datasets);
+    this._register(OrdersDataset);
   }
 
-  private _register(datasets: any[]) {
+  private _register(...datasets: any[]) {
     datasets.forEach((datasetClass) => {
       this.registry.set(datasetClass.id, datasetClass);
     });
   }
 
-  getById(id: string): IDataset {
+  getDatasetById(id: string): IDataset {
     if (!this.registry.has(id)) {
       return undefined;
     }

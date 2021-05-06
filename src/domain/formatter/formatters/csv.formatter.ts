@@ -1,7 +1,6 @@
 import { ExportToCsv } from 'export-to-csv';
 import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
-import { IFormatter } from '../models/fomatter.abstract';
-import { FormatsAllowed } from '../models/formats-allowed.model';
+import { IFormatter } from '../models/iformatter.model';
 import { IFormatterFormat } from '../models/iformatter-format.model';
 
 export class CSVFormatter extends IFormatter {
@@ -24,7 +23,7 @@ export class CSVFormatter extends IFormatter {
 
     return {
       formattedStream: new ExportToCsv(options).generateCsv(data, true),
-      contentType: FormatsAllowed.CSV,
+      contentType: 'text/csv',
     };
   }
 }

@@ -1,7 +1,6 @@
 import { ExportToCsv } from 'export-to-csv';
 import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
-import { IFormatter } from '../models/fomatter.abstract';
-import { FormatsAllowed } from '../models/formats-allowed.model';
+import { IFormatter } from '../models/iformatter.model';
 import { IFormatterFormat } from '../models/iformatter-format.model';
 import * as zipper from 'lzutf8';
 
@@ -31,7 +30,7 @@ export class CSVZippedFormatter extends IFormatter {
           outputEncoding: 'Buffer',
         },
       ),
-      contentType: FormatsAllowed.CSV_ZIPPPED,
+      contentType: 'application/zip',
     };
   }
 }

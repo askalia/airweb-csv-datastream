@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 
-import { FormatterRegistry } from './formatter/formatter-registry.service';
-import { DatasetRegistry } from './dataset/dataset-registry.service';
+import { FormatterService } from './formatter/formatter.service';
+import { DatasetService } from './dataset/dataset.service';
 
-import { CommonModule } from 'src/common/providers/common.module';
-import { PrismaService } from 'src/common/providers/db/prisma.service';
+import { CommonModule } from '../common/common.module';
+
+const services = [DatasetService, FormatterService];
 
 @Module({
-  providers: [DatasetRegistry, FormatterRegistry],
+  providers: services,
   imports: [CommonModule],
-  exports: [DatasetRegistry, FormatterRegistry],
+  exports: services,
 })
 export class DomainModule {}
