@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { CommonModule } from '../../common/providers/common.module';
-import { FormatterFactoryService } from '../../common/providers/serializers/formatter/formatter.factory';
-import { DatasetFetcherService } from '../../domain/dataset';
+import { CommonModule } from 'src/common/providers/common.module';
+import { DatasetRegistry } from 'src/domain/dataset/dataset-registry.service';
+import { FormatterRegistry } from 'src/domain/formatter';
 import { DomainModule } from '../../domain/domain.module';
-import { FormatsService } from '../../domain/formats';
 import { DatasetController, FormatsController } from './controllers';
 
 @Module({
-  imports: [DomainModule, CommonModule],
-  providers: [DatasetFetcherService, FormatsService, FormatterFactoryService],
+  imports: [CommonModule],
+  providers: [DatasetRegistry, FormatterRegistry],
   controllers: [DatasetController, FormatsController],
+  exports: [],
 })
 export class ApiRestModule {}

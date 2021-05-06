@@ -1,4 +1,4 @@
-import { Snapshot } from 'src/common/providers/serializers/formatter/snapshot.model';
+import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 import { IDataset } from './dataset.abstract.model';
 
 export class Dataset extends IDataset {

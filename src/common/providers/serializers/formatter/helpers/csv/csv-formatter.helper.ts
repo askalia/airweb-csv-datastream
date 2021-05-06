@@ -1,18 +1,20 @@
+/*
 import { ExportToCsv } from 'export-to-csv';
-import { IFormatter } from '../../iformatter.model';
-import { Snapshot } from '../../snapshot.model';
-import { FormatsAllowed } from '../../formats-allowed.model';
-import { IFormatterFormat } from '../../iformatter-format.model';
+//import { IFormatter } from '../../iformatter.model';
+import { Snapshot } from '../../../../../../domain/dataset/models/snapshot.model';
+import { FormatsAllowed } from '../../../../../../domain/formatter/models/formats-allowed.model';
+import { IFormatterFormat } from '../../../../../../domain/formatter/models/iformatter-format.model';
 import { registerFormatter } from '../formatters-registry';
 
 const ID = 'csv';
 const FILE_EXT = '.csv';
 const MIME = FormatsAllowed.CSV;
-
+*/
+/*
 export const CSVFormatterHelper: IFormatter = {
   id: ID,
-  format: async <T>(
-    snapshot: Snapshot<T>,
+  format: async (
+    snapshot: Snapshot,
     snapshotTypeName: string,
   ): Promise<IFormatterFormat> => {
     const options = {
@@ -30,10 +32,11 @@ export const CSVFormatterHelper: IFormatter = {
 
     return {
       filename: options.title,
-      stream: new ExportToCsv(options).generateCsv(snapshot, true),
+      formattedStream: new ExportToCsv(options).generateCsv(snapshot, true),
       contentType: MIME,
     };
   },
 };
 
 export const registerCSV = () => registerFormatter(ID, CSVFormatterHelper);
+*/

@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+/*import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/providers/db/prisma.service';
 import { Prisma, Order, Client } from '.prisma/client';
 import { DatasetType } from './models';
 import helpers from './dataset.helpers';
-import { Snapshot } from 'src/common/providers/serializers/formatter/snapshot.model';
+import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 
 @Injectable()
 export class DatasetFetcherService {
@@ -32,3 +32,4 @@ export class DatasetFetcherService {
     });
   }
 }
+*/

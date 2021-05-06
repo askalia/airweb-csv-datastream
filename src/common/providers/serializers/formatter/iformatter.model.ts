@@ -1,10 +1,7 @@
-import { IFormatterFormat } from './iformatter-format.model';
-import { Snapshot } from './snapshot.model';
+import { IFormatterFormat } from '../../../../domain/formatter/models/iformatter-format.model';
+import { Snapshot } from '../../../../domain/dataset/models/snapshot.model';
 
-export interface IFormatter {
+export interface IFormatter__ {
   id: string;
-  format<T>(
-    data: Snapshot<T>,
-    snapshotTypeName: string,
-  ): Promise<IFormatterFormat>;
+  format(data: Snapshot, snapshotTypeName: string): Promise<IFormatterFormat>;
 }

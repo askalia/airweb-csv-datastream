@@ -1,25 +1,22 @@
-import { Snapshot } from 'src/common/providers/serializers/formatter/snapshot.model';
-type DatasetTarget = 'order' | 'client';
+import { PrismaService } from 'src/common/providers/db/prisma.service';
+import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
+import { DatasetFilters } from './dataset-filers.model';
 
-type DatasetFilter = unknown;
-type DatasetFilters = DatasetFilter[];
-
-export interface IDatasetRecord {
+export interface IDatasetMetadata {
   id: string;
-  target: DatasetTarget;
-  filters: DatasetFilters;
+  description?: string;
 }
 
-export abstract class IDataset implements IDatasetRecord {
-  id: string;
-  target: DatasetTarget;
+export abstract class IDataset {
+  static id: string;
+  static description?: string;
   filters: DatasetFilters;
+  _stream: Snapshot = null;
 
-  abstract fetch(): Promise<Snapshot>;
+  constructor(protected readonly orm: PrismaService) {}
 
-  from(data: IDatasetRecord) {
-    for (const [k, v] of Object.entries(data)) {
-      this[k] = v;
-    }
+  static get metadata(): IDatasetMetadata {
+    return { id: IDataset.id, description: IDataset.description };
   }
+  abstract fetch(data?: { filters?: DatasetFilters }): Promise<Snapshot>;
 }

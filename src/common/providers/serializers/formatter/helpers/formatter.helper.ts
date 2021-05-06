@@ -1,4 +1,4 @@
-import { FormatsAllowed } from '../formats-allowed.model';
+import { FormatsAllowed } from '../../../../../domain/formatter/models/formats-allowed.model';
 
 export function validateFileFormat(formatType: string | string[]): boolean {
   const lookupFormats = Object.values(FormatsAllowed).map(String);

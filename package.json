@@ -27,6 +27,8 @@
     "@nestjs/platform-fastify": "^7.6.15",
     "@prisma/client": "^2.21.2",
     "export-to-csv": "^0.2.1",
+    "js2xmlparser": "^4.0.1",
+    "lzutf8": "^0.6.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6"

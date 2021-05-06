@@ -1,4 +1,4 @@
-import { IFormatter } from '../iformatter.model';
+/*import { IFormatter } from '../iformatter.model';
 
 const registry: Map<string, IFormatter> = new Map<string, IFormatter>();
 
@@ -25,3 +25,4 @@ import { registerCSV } from './csv/csv-formatter.helper';
 export const registerAllFormatters = () => {
   registerCSV();
 };
+*/

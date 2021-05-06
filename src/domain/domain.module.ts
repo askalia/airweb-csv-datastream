@@ -1,13 +1,14 @@
-import { PrismaClient } from '.prisma/client';
 import { Module } from '@nestjs/common';
+
+import { FormatterRegistry } from './formatter/formatter-registry.service';
+import { DatasetRegistry } from './dataset/dataset-registry.service';
+
 import { CommonModule } from 'src/common/providers/common.module';
-import { PrismaService } from '../common/providers/db/prisma.service';
-import { DatasetFetcherService, DatasetModule } from './dataset';
-import { FormatsModule, FormatsService } from './formats';
+import { PrismaService } from 'src/common/providers/db/prisma.service';
 
 @Module({
-  providers: [],
-  imports: [PrismaClient, DatasetModule],
-  exports: [],
+  providers: [DatasetRegistry, FormatterRegistry],
+  imports: [CommonModule],
+  exports: [DatasetRegistry, FormatterRegistry],
 })
 export class DomainModule {}

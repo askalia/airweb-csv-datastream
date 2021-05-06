@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FormatsAllowed } from '../../common/providers/serializers/formatter/formats-allowed.model';
+import { FormatsAllowed } from '../formatter/models/formats-allowed.model';
 
 @Injectable()
 export class FormatsService {

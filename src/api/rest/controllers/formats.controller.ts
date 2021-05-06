@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { FormatsService } from '../../../domain/formats/formats.service';
+import { FormatterRegistry } from 'src/domain/formatter';
 
 @Controller('formats')
 export class FormatsController {
-  constructor(private readonly _formatService: FormatsService) {}
-  @Get()
+  constructor(private readonly _formatterRegister: FormatterRegistry) {}
+  @Get('/')
   listAll() {
-    return this._formatService.listFormats();
+    return this._formatterRegister.listAllIds();
   }
 }
