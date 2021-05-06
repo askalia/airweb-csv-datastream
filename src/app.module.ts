@@ -1,12 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CommonModule } from './common/providers/common.module';
-import { DatasetModule } from './domain/dataset/dataset.module';
+import { DomainModule } from './domain/domain.module';
+import { ApiRestModule } from './api/rest/api-rest.module';
 
 @Module({
-  imports: [CommonModule, DatasetModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [DomainModule, ApiRestModule],
 })
 export class AppModule {}
