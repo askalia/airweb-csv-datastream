@@ -1,17 +1,8 @@
 import { PrismaService } from 'src/common/db/prisma.service';
 import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
-
-export interface IDatasetMetadata {
-  id: string;
-  description?: string;
-}
-
-export type IFetchOptions = {
-  filters: DatasetFilters;
-  limit?: number;
-  orderBy?: { [field: string]: 'asc' | 'desc' };
-};
+import { IDatasetFetchOptions } from './dataset-fetch-options.model';
+import { IDatasetMetadata } from './dataset-metadata.model';
 
 export abstract class IDataset {
   static id: string;
@@ -26,5 +17,5 @@ export abstract class IDataset {
   static get metadata(): IDatasetMetadata {
     return { id: IDataset.id, description: IDataset.description };
   }
-  abstract fetch(options: IFetchOptions): Promise<Snapshot>;
+  abstract fetch(options: IDatasetFetchOptions): Promise<Snapshot>;
 }

@@ -3,6 +3,8 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { setupSwagger } from './swagger';
+
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,6 +12,9 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
+
+  setupSwagger(app);
+
   await app.listen(process.env.HTTP_PORT);
 }
 bootstrap();
