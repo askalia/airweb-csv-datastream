@@ -1,1 +1,1 @@
-export type Snapshot = any[];
+export type Snapshot<T = unknown> = T[];

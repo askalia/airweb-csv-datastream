@@ -2,18 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { IFormatter } from './models/iformatter.model';
 
 import { CSVFormatter, CSVZippedFormatter, XMLFormatter } from './formatters';
-import { IDatasetMetadata } from '../dataset/models/dataset.abstract.model';
+import { IDatasetMetadata } from '../dataset/models';
 
 @Injectable()
 export class FormatterService {
-  private registry: Map<string, any> = new Map<string, any>();
+  private registry = new Map<string, typeof IFormatter>();
   constructor() {
     this._register(CSVFormatter, CSVZippedFormatter, XMLFormatter);
   }
 
-  private _register(...formatters: any[]) {
+  private _register(...formatters: typeof IFormatter[]) {
     formatters.forEach((formatterClass) => {
-      this.registry.set(formatterClass.id, formatterClass);
+      this.registry.set(IFormatter.id, formatterClass);
     });
   }
 
@@ -21,8 +21,8 @@ export class FormatterService {
     if (!this.registry.has(id)) {
       return undefined;
     }
-    const formatter = this.registry.get(id);
-    return new formatter();
+    const formatterClass = this.registry.get(id) as any;
+    return new formatterClass() as IFormatter;
   }
 
   validateFormat(format: string): boolean {

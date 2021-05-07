@@ -1,4 +1,3 @@
-import { Order, Client } from '.prisma/client';
 import {
   BadRequestException,
   Controller,
@@ -9,9 +8,29 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
+import {
+  ApiParam,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiQuery,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 
-import { IDatasetMetadata, DatasetService } from '../../../domain/dataset';
+import {
+  IDatasetMetadata,
+  DatasetService,
+  IDatasetFetchOptions,
+} from '../../../domain/dataset';
 import { FormatterService } from '../../../domain/formatter';
+import { StringToJsonPipe } from '../pipes/string-to-json.pipe';
+
+import { MapToJsonPipe } from '../pipes/map-to-json.pipe';
+import { ResourceMetadata } from '../dto';
+
+/*@PipeTransform()
+class FilterToJson {
+  trans
+}*/
 
 @Controller('datasets')
 export class DatasetController {
@@ -21,10 +40,44 @@ export class DatasetController {
   ) {}
 
   @Get('/:datasetId/export')
-  async findDataset(
+  @ApiOkResponse({
+    isArray: true,
+  })
+  @ApiBadRequestResponse({
+    description: 'Query param value empty or not supported',
+  })
+  @ApiNotFoundResponse({
+    description: 'Dataset not found',
+  })
+  @ApiParam({
+    name: 'datasetId',
+    type: 'string',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'format',
+    type: 'string',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'filters',
+    type: 'json',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'orderby',
+    type: 'string',
+    description: '',
+    example: 'name:asc',
+    required: false,
+  })
+  async getDataset(
     @Param('datasetId') datasetId: IDatasetMetadata['id'],
     @Query('format') formatExpected: string,
-    @Query('filters') filters: string,
+    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('limit') limit: IDatasetFetchOptions['limit'],
+    @Query('filters', StringToJsonPipe)
+    filters: IDatasetFetchOptions['filters'],
     @Response() httpResponse: FastifyReply,
   ) {
     try {
@@ -42,7 +95,9 @@ export class DatasetController {
       }
 
       const dataStream = await dataset.fetch({
-        filters: JSON.parse(filters || '{}'),
+        orderBy,
+        limit,
+        filters,
       });
 
       const formatter = this._formatterService.getFormatterById(formatExpected);
@@ -60,6 +115,12 @@ export class DatasetController {
   }
 
   @Get('/')
+  @ApiOkResponse({
+    status: 201,
+    type: ResourceMetadata,
+    isArray: true,
+    description: 'Datasets available',
+  })
   async listDatasets() {
     return this._datasetService.listAllIds();
   }

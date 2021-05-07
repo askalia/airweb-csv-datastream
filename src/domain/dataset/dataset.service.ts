@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
-import { IDataset, IDatasetMetadata } from './models/dataset.abstract.model';
+import { IDataset, IDatasetMetadata } from './models';
 
 import { OrdersDataset } from './datasets/orders.dataset';
 
 @Injectable()
 export class DatasetService {
-  private registry: Map<string, any> = new Map<string, any>();
+  private registry = new Map<string, typeof IDataset>();
   constructor(
     @Inject('PrismaService')
     private readonly orm: PrismaService,
@@ -14,7 +14,7 @@ export class DatasetService {
     this._register(OrdersDataset);
   }
 
-  private _register(...datasets: any[]) {
+  private _register(...datasets: typeof IDataset[]) {
     datasets.forEach((datasetClass) => {
       this.registry.set(datasetClass.id, datasetClass);
     });
@@ -24,8 +24,8 @@ export class DatasetService {
     if (!this.registry.has(id)) {
       return undefined;
     }
-    const dataset = this.registry.get(id);
-    return new dataset(this.orm);
+    const datasetClass = this.registry.get(id) as any;
+    return new datasetClass(this.orm) as IDataset;
   }
 
   validateDataset(dataset): boolean {
