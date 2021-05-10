@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import {
@@ -14,6 +15,7 @@ import {
   ApiNotFoundResponse,
   ApiQuery,
   ApiOkResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 import {
@@ -26,6 +28,7 @@ import { StringToJsonPipe } from '../pipes/string-to-json.pipe';
 
 import { MapToJsonPipe } from '../pipes/map-to-json.pipe';
 import { ResourceMetadata } from '../dto';
+import { DatasetExportGuard } from '../guards/dataset-export.guard';
 
 /*@PipeTransform()
 class FilterToJson {
@@ -40,6 +43,8 @@ export class DatasetController {
   ) {}
 
   @Get('/:datasetId/export')
+  @ApiBearerAuth()
+  @UseGuards(DatasetExportGuard)
   @ApiOkResponse({
     isArray: true,
   })
