@@ -33,9 +33,14 @@ export class DatasetService {
   }
 
   listAllIds(): IDatasetMetadata[] {
-    return Array.from(this.registry.values()).map((dsClassRef) => ({
-      id: dsClassRef.id,
-      description: dsClassRef.description,
-    }));
+    const sortAsc = (dataset, datasetNext) => {
+      return dataset.id < datasetNext.id ? -1 : 1;
+    };
+    return Array.from(this.registry.values())
+      .map((dsClassRef) => ({
+        id: dsClassRef.id,
+        description: dsClassRef.description,
+      }))
+      .sort(sortAsc);
   }
 }
