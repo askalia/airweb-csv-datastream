@@ -7,7 +7,8 @@ export interface IFormatterMetadata {
 }
 
 export abstract class IFormatter {
-  static id: string;
-  static description?: string;
-  abstract format(data: Snapshot, dataType?: string): Promise<IFormatterFormat>;
+  abstract format(
+    data: Snapshot,
+    dataTypeName?: string,
+  ): Promise<IFormatterFormat>;
 }

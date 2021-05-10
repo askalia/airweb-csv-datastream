@@ -2,11 +2,15 @@ import { ExportToCsv } from 'export-to-csv';
 import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 import { IFormatter } from '../models/iformatter.model';
 import { IFormatterFormat } from '../models/iformatter-format.model';
+import { Injectable } from '@nestjs/common';
+import { FormatterProvider } from '../formatter.decorator';
 
+@Injectable()
+@FormatterProvider({
+  id: 'csv',
+  description: 'a simple csv formatter',
+})
 export class CSVFormatter extends IFormatter {
-  static id = 'csv';
-  static description = 'a simple csv formatter';
-
   async format(data: Snapshot): Promise<IFormatterFormat> {
     const options = {
       fieldSeparator: ';',

@@ -1,28 +1,38 @@
-import { Injectable } from '@nestjs/common';
-import { IFormatter } from './models/iformatter.model';
+import { Injectable, Scope } from '@nestjs/common';
+import { IFormatter, IFormatterMetadata } from './models/iformatter.model';
 
-import { CSVFormatter, CSVZippedFormatter, XMLFormatter } from './formatters';
 import { IDatasetMetadata } from '../dataset/models';
 
-@Injectable()
-export class FormatterService {
-  private registry = new Map<string, typeof IFormatter>();
-  constructor() {
-    this._register(CSVFormatter, CSVZippedFormatter, XMLFormatter);
-  }
+interface FormattersRegistry {
+  metadata: IFormatterMetadata;
+  provider: IFormatter;
+}
 
-  private _register(...formatters: typeof IFormatter[]) {
-    formatters.forEach((formatterClass) => {
-      this.registry.set(IFormatter.id, formatterClass);
+@Injectable({
+  scope: Scope.DEFAULT,
+})
+export class FormatterService {
+  private registry = new Map<string, FormattersRegistry>();
+
+  public register(
+    formatters: { metadata: IFormatterMetadata; provider: IFormatter }[],
+  ) {
+    if (this.registry.size > 0) {
+      throw new Error('Formatters Registry must not be set again');
+    }
+    formatters.forEach((formatter) => {
+      this.registry.set(formatter.metadata.id, {
+        metadata: formatter.metadata,
+        provider: formatter.provider,
+      });
     });
   }
 
-  getFormatterById(id: string): IFormatter {
+  getFormatterById(id: string): IFormatter | undefined {
     if (!this.registry.has(id)) {
       return undefined;
     }
-    const formatterClass = this.registry.get(id) as any;
-    return new formatterClass() as IFormatter;
+    return this.registry.get(id)?.provider;
   }
 
   validateFormat(format: string): boolean {
@@ -30,9 +40,15 @@ export class FormatterService {
   }
 
   listAllIds(): IDatasetMetadata[] {
-    return Array.from(this.registry.values()).map((dsClassRef) => ({
-      id: dsClassRef.id,
-      description: dsClassRef.description,
-    }));
+    const sortAsc = (provider, providerNext) => {
+      return provider.id < providerNext.id ? -1 : 1;
+    };
+    return Array.from(this.registry.values())
+      .map(({ metadata: { id, description }, provider }) => ({
+        id,
+        description,
+        provider,
+      }))
+      .sort(sortAsc);
   }
 }

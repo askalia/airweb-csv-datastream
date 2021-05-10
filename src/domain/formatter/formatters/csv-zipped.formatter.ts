@@ -3,11 +3,15 @@ import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 import { IFormatter } from '../models/iformatter.model';
 import { IFormatterFormat } from '../models/iformatter-format.model';
 import * as zipper from 'lzutf8';
+import { Injectable } from '@nestjs/common';
+import { FormatterProvider } from '../formatter.decorator';
 
+@Injectable()
+@FormatterProvider({
+  id: 'csv-zip',
+  description: 'a simple csv zipped formatter',
+})
 export class CSVZippedFormatter extends IFormatter {
-  static id = 'csv-zipped';
-  static description = 'a simple csv+zipped formatter';
-
   async format(data: Snapshot): Promise<IFormatterFormat> {
     const options = {
       fieldSeparator: ';',

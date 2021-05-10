@@ -15,6 +15,6 @@ async function bootstrap() {
 
   setupSwagger(app);
 
-  await app.listen(process.env.HTTP_PORT);
+  await app.listen(app.get('HTTP_PORT'));
 }
 bootstrap();
