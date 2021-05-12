@@ -2,30 +2,39 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
 import { IDataset, IDatasetMetadata } from './models';
 
-import { OrdersDataset } from './datasets/orders.dataset';
+interface DatasetRegistryItem {
+  metadata: IDatasetMetadata;
+  provider: IDataset;
+}
 
 @Injectable()
 export class DatasetService {
-  private registry = new Map<string, typeof IDataset>();
+  private registry = new Map<string, DatasetRegistryItem>();
   constructor(
     @Inject('PrismaService')
     private readonly orm: PrismaService,
-  ) {
-    this._register(OrdersDataset);
-  }
+  ) {}
 
-  private _register(...datasets: typeof IDataset[]) {
-    datasets.forEach((datasetClass) => {
-      this.registry.set(datasetClass.id, datasetClass);
+  public register(
+    datasets: { metadata: IDatasetMetadata; provider: IDataset }[],
+  ) {
+    if (this.registry.size > 0) {
+      throw new Error('Datasets Registry must not be set again');
+    }
+    datasets.forEach((dataset) => {
+      this.registry.set(dataset.metadata.id, {
+        metadata: dataset.metadata,
+        provider: dataset.provider,
+      });
     });
   }
 
-  getDatasetById(id: string): IDataset {
+  getDatasetById(id: string): IDataset | undefined {
     if (!this.registry.has(id)) {
       return undefined;
     }
-    const datasetClass = this.registry.get(id) as any;
-    return new datasetClass(this.orm) as IDataset;
+    const dataset = this.registry.get(id);
+    return dataset.provider.setup({ orm: this.orm });
   }
 
   validateDataset(dataset): boolean {
@@ -33,13 +42,13 @@ export class DatasetService {
   }
 
   listAllIds(): IDatasetMetadata[] {
-    const sortAsc = (dataset, datasetNext) => {
-      return dataset.id < datasetNext.id ? -1 : 1;
+    const sortAsc = (provider, providerNext) => {
+      return provider.id < providerNext.id ? -1 : 1;
     };
     return Array.from(this.registry.values())
-      .map((dsClassRef) => ({
-        id: dsClassRef.id,
-        description: dsClassRef.description,
+      .map(({ metadata: { id, description } }) => ({
+        id,
+        description,
       }))
       .sort(sortAsc);
   }

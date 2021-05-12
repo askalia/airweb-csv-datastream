@@ -1,6 +1,7 @@
 import { SetMetadata } from '@nestjs/common';
+import { IDatasetMetadata } from './models';
 
-export const DATASET_DECORATOR_TAG = 'Dataset';
+export const DATASET_TAG = 'DatasetDecorator';
 
-export const DatasetProvider = (...args: string[]) =>
-  SetMetadata(DATASET_DECORATOR_TAG, args);
+export const DatasetProvider = (metadata: IDatasetMetadata) =>
+  SetMetadata(DATASET_TAG, metadata);
