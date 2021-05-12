@@ -3,12 +3,12 @@ import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
 import { IDatasetFetchOptions } from './dataset-fetch-options.model';
 import { IDatasetMetadata } from './dataset-metadata.model';
-import { timeStamp } from 'node:console';
+import { Type } from '@nestjs/common';
 
 export abstract class IDataset {
   static id: string;
   static description?: string;
-  filters: DatasetFilters;
+  filters: DatasetFilters<unknown>;
   _stream: Snapshot = null;
   protected _orm: PrismaService;
 
@@ -23,4 +23,15 @@ export abstract class IDataset {
     return { id: IDataset.id, description: IDataset.description };
   }
   abstract fetch(options: IDatasetFetchOptions): Promise<Snapshot>;
+
+  protected _checkSetup() {
+    if (!(this._orm instanceof PrismaService)) {
+      throw new Error('ORM is not set. Please check platform setup');
+    }
+  }
+  protected where<D>(filters: IDatasetFetchOptions<D>['filters']) {
+    return {
+      AND: filters,
+    };
+  }
 }

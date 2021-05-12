@@ -74,7 +74,8 @@ export class DatasetController {
   async getDataset(
     @Param('datasetId') datasetId: IDatasetMetadata['id'],
     @Query('format') formatExpected: string,
-    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('orderby', MapToJsonPipe)
+    orderBy: IDatasetFetchOptions['orderBy'],
     @Query('limit') limit: IDatasetFetchOptions['limit'],
     @Query('filters', StringToJsonPipe)
     filters: IDatasetFetchOptions['filters'],
