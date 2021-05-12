@@ -3,7 +3,7 @@ import { IFormatter, IFormatterMetadata } from './models/iformatter.model';
 
 import { IDatasetMetadata } from '../dataset/models';
 
-interface FormattersRegistry {
+interface FormatterRegistryItem {
   metadata: IFormatterMetadata;
   provider: IFormatter;
 }
@@ -12,7 +12,7 @@ interface FormattersRegistry {
   scope: Scope.DEFAULT,
 })
 export class FormatterService {
-  private registry = new Map<string, FormattersRegistry>();
+  private registry = new Map<string, FormatterRegistryItem>();
 
   public register(
     formatters: { metadata: IFormatterMetadata; provider: IFormatter }[],
@@ -44,10 +44,9 @@ export class FormatterService {
       return provider.id < providerNext.id ? -1 : 1;
     };
     return Array.from(this.registry.values())
-      .map(({ metadata: { id, description }, provider }) => ({
+      .map(({ metadata: { id, description } }) => ({
         id,
         description,
-        provider,
       }))
       .sort(sortAsc);
   }

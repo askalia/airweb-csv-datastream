@@ -10,7 +10,7 @@ import * as formatters from './formatters/index';
 })
 export class FormatterModule {
   constructor(private discovery: DiscoveryService) {}
-  async onModuleInit() {
+  onModuleInit() {
     this._registerFormatters();
   }
 
@@ -28,7 +28,7 @@ export class FormatterModule {
       )
       .map((pv) => {
         return {
-          metadata: Reflect.getMetadata(FORMATTER_TAG, pv.metatype),
+          metadata: Reflect.getOwnMetadata(FORMATTER_TAG, pv.metatype),
           provider: pv.instance,
         };
       });
