@@ -19,6 +19,20 @@ export class OrdersDataset extends IDataset {
       where: this.where<OrdersDatasetFilters>(options?.filters),
       take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
       orderBy: options?.orderBy || undefined,
+      select: {
+        id: true,
+        code: true,
+        userId: true,
+        networkId: true,
+        taxFreeTotal: true,
+        total: true,
+        user: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
     return this._stream;
   }
