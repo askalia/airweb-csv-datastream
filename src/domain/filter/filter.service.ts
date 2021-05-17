@@ -9,10 +9,7 @@ export class FilterService {
       if (block === undefined) {
         return null;
       }
-      //const [field, operator, value] = block.split(':');
       const pattern = new RegExp(Object.keys(filterOperatorsMap).join('|'));
-
-      //const [field, operator, value] = block.split(/(>=|>|=|<=|!=|<)/);
       const [field, value] = block.split(pattern);
       const [operator] = block.match(pattern);
 
