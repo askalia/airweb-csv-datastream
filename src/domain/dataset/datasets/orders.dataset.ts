@@ -3,8 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
 import { Snapshot } from '../models/snapshot.model';
-import { ModuleRef } from '@nestjs/core';
-import { PrismaService } from '../../../common/db/prisma.service';
 
 @Injectable()
 @DatasetProvider({
@@ -12,17 +10,32 @@ import { PrismaService } from '../../../common/db/prisma.service';
   description: 'retrieves Orders, limited to 100-first records',
 })
 export class OrdersDataset extends IDataset {
-  async fetch(options: IDatasetFetchOptions): Promise<Snapshot> {
-    if (!(this._orm instanceof PrismaService)) {
-      throw new Error('ORM is not set. Please check platform setup');
-    }
-    const whereClause: Prisma.OrderWhereInput = {};
+  async fetch(
+    options: IDatasetFetchOptions<OrdersDatasetFilters>,
+  ): Promise<Snapshot> {
+    this._checkSetup();
 
     this._stream = await (this?._orm || {}).order.findMany({
-      where: whereClause,
-      take: options?.filters?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
+      where: this.where<OrdersDatasetFilters>(options?.filters),
+      take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
       orderBy: options?.orderBy || undefined,
+      select: {
+        id: true,
+        code: true,
+        userId: true,
+        networkId: true,
+        taxFreeTotal: true,
+        total: true,
+        user: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
     return this._stream;
   }
 }
+
+export type OrdersDatasetFilters = Prisma.OrderWhereInput;

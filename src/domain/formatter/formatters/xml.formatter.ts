@@ -11,9 +11,16 @@ const DEFAULT_NODE_NAME = 'dataset';
   description: 'a simple xml formatter',
 })
 export class XMLFormatter extends IFormatter {
-  async format(data, dataTypeName = DEFAULT_NODE_NAME) {
+  async format(
+    data,
+    options: {
+      dataTypeName: string;
+    } = {
+      dataTypeName: DEFAULT_NODE_NAME,
+    },
+  ) {
     return {
-      formattedStream: xmlParser.parse(dataTypeName, data),
+      formattedStream: xmlParser.parse(options.dataTypeName, data),
       contentType: 'text/xml',
     };
   }

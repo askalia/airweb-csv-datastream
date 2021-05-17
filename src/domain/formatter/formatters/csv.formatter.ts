@@ -4,6 +4,7 @@ import { IFormatter } from '../models/iformatter.model';
 import { IFormatterFormat } from '../models/iformatter-format.model';
 import { Injectable } from '@nestjs/common';
 import { FormatterProvider } from '../formatter.decorator';
+import { withFlattening } from '../helpers';
 
 @Injectable()
 @FormatterProvider({
@@ -11,22 +12,28 @@ import { FormatterProvider } from '../formatter.decorator';
   description: 'a simple csv formatter',
 })
 export class CSVFormatter extends IFormatter {
-  async format(data: Snapshot): Promise<IFormatterFormat> {
-    const options = {
+  async format(
+    data: Snapshot,
+    options?: { customHeaders?: string[] },
+  ): Promise<IFormatterFormat> {
+    const csvOptions = {
       fieldSeparator: ';',
       quoteStrings: '"',
       decimalSeparator: '.',
       showLabels: true,
       showTitle: false,
-      //      title: `${snapshotTypeName.toLowerCase()}-${new Date().getTime()}${FILE_EXT}`,
       useTextFile: false,
       useBom: true,
-      useKeysAsHeaders: true,
-      // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
+      useKeysAsHeaders: !options?.customHeaders,
+      headers: options?.customHeaders || undefined, //['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
     };
 
+    const shouldReturnCsv = true;
     return {
-      formattedStream: new ExportToCsv(options).generateCsv(data, true),
+      formattedStream: new ExportToCsv(csvOptions).generateCsv(
+        withFlattening(data),
+        shouldReturnCsv,
+      ),
       contentType: 'text/csv',
     };
   }

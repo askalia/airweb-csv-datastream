@@ -28,7 +28,6 @@ export class DatasetService {
       });
     });
   }
-
   getDatasetById(id: string): IDataset | undefined {
     if (!this.registry.has(id)) {
       return undefined;

@@ -22,10 +22,10 @@ import {
   IDatasetFetchOptions,
 } from '../../../domain/dataset';
 import { FormatterService } from '../../../domain/formatter';
-import { StringToJsonPipe } from '../pipes/string-to-json.pipe';
 
 import { MapToJsonPipe } from '../pipes/map-to-json.pipe';
 import { ResourceMetadata } from '../dto';
+import { DatasetFiltersParserPipe } from '../pipes/dataset-filters-parser.pipe';
 
 /*@PipeTransform()
 class FilterToJson {
@@ -76,7 +76,7 @@ export class DatasetController {
     @Query('format') formatExpected: string,
     @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
     @Query('limit') limit: IDatasetFetchOptions['limit'],
-    @Query('filters', StringToJsonPipe)
+    @Query('filters', DatasetFiltersParserPipe)
     filters: IDatasetFetchOptions['filters'],
     @Response() httpResponse: FastifyReply,
   ) {
