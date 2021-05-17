@@ -3,7 +3,6 @@ import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
 import { IDatasetFetchOptions } from './dataset-fetch-options.model';
 import { IDatasetMetadata } from './dataset-metadata.model';
-import { Type } from '@nestjs/common';
 
 export abstract class IDataset {
   static id: string;
