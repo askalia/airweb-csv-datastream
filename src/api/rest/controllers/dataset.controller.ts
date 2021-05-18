@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Query,
-  NotFoundException,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import {
@@ -14,6 +13,7 @@ import {
   ApiNotFoundResponse,
   ApiQuery,
   ApiOkResponse,
+  ApiProduces,
 } from '@nestjs/swagger';
 
 import {
@@ -61,6 +61,76 @@ export class DatasetController {
   })
   @ApiQuery({
     name: 'filters',
+    type: 'string',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'orderby',
+    type: 'string',
+    description: '',
+    example: 'name:asc',
+    required: false,
+  })
+  async getDatasetExported(
+    @Param('datasetId') datasetId: IDatasetMetadata['id'],
+    @Query('format') formatExpected: string,
+    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('limit') limit: IDatasetFetchOptions['limit'],
+    @Query('filters', DatasetFiltersParserPipe)
+    filters: IDatasetFetchOptions['filters'],
+    @Response() httpResponse: FastifyReply,
+  ) {
+    try {
+      const dataFormatter = this._formatterService.getFormatterById(
+        formatExpected,
+      );
+      const dataStream = await this._datasetService.getDatasetItems(datasetId, {
+        orderBy,
+        limit,
+        filters,
+      });
+
+      const { formattedStream, contentType } = await dataFormatter.format(
+        dataStream,
+      );
+      return httpResponse
+        .headers({
+          'Content-Type': contentType,
+        })
+        .send(formattedStream);
+    } catch (e) {
+      if (e instanceof Error) {
+        throw new BadRequestException((e as Error).message);
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  @Get('/:datasetId/items')
+  @ApiProduces('application/json')
+  @ApiOkResponse({
+    isArray: true,
+    description: 'dataset items as JSON',
+  })
+  @ApiBadRequestResponse({
+    description: 'Query param value empty or not supported',
+  })
+  @ApiNotFoundResponse({
+    description: 'Dataset not found',
+  })
+  @ApiParam({
+    name: 'datasetId',
+    type: 'string',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'format',
+    type: 'string',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'filters',
     type: 'json',
     required: false,
   })
@@ -71,47 +141,18 @@ export class DatasetController {
     example: 'name:asc',
     required: false,
   })
-  async getDataset(
+  async getDatasetItems(
     @Param('datasetId') datasetId: IDatasetMetadata['id'],
-    @Query('format') formatExpected: string,
     @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
     @Query('limit') limit: IDatasetFetchOptions['limit'],
     @Query('filters', DatasetFiltersParserPipe)
     filters: IDatasetFetchOptions['filters'],
-    @Response() httpResponse: FastifyReply,
   ) {
-    try {
-      if (!this._formatterService.validateFormat(formatExpected)) {
-        throw new BadRequestException(
-          `format '${formatExpected}' is empty or not supported. Please check supported formats : ${process.env.HOST_URL}/formats`,
-        );
-      }
-
-      const dataset = this._datasetService.getDatasetById(datasetId);
-      if (!this._datasetService.validateDataset(dataset)) {
-        throw new NotFoundException(
-          `Dataset '${datasetId}' not found. Please check available Datasets : ${process.env.HOST_URL}/datasets`,
-        );
-      }
-
-      const dataStream = await dataset.fetch({
-        orderBy,
-        limit,
-        filters,
-      });
-
-      const formatter = this._formatterService.getFormatterById(formatExpected);
-      const { formattedStream, contentType } = await formatter.format(
-        dataStream,
-      );
-      return httpResponse
-        .headers({
-          'Content-Type': contentType,
-        })
-        .send(formattedStream);
-    } catch (e) {
-      throw new BadRequestException((e as Error).message);
-    }
+    return this._datasetService.getDatasetItems(datasetId, {
+      orderBy,
+      limit,
+      filters,
+    });
   }
 
   @Get('/')

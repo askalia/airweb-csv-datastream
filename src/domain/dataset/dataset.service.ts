@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
-import { IDataset, IDatasetMetadata } from './models';
+import { IDataset, IDatasetFetchOptions, IDatasetMetadata } from './models';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
@@ -45,10 +45,34 @@ export class DatasetService {
       return provider.id < providerNext.id ? -1 : 1;
     };
     return Array.from(this.registry.values())
-      .map(({ metadata: { id, description } }) => ({
-        id,
-        description,
-      }))
+      .map(({ metadata }) => metadata)
       .sort(sortAsc);
+  }
+
+  async getDatasetItems(
+    datasetId: string,
+    {
+      orderBy,
+      limit,
+      filters,
+    }: {
+      orderBy: IDatasetFetchOptions['orderBy'];
+      limit: IDatasetFetchOptions['limit'];
+      filters: IDatasetFetchOptions['filters'];
+    },
+  ) {
+    const dataset = this.getDatasetById(datasetId);
+    if (!this.validateDataset(dataset)) {
+      throw new Error(
+        `Dataset '${datasetId}' not found. Please check available Datasets : ${process.env.HOST_URL}/datasets`,
+      );
+    }
+
+    const dataStream = await dataset.fetch({
+      orderBy,
+      limit,
+      filters,
+    });
+    return dataStream;
   }
 }

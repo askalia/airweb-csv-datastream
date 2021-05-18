@@ -8,6 +8,7 @@ import { Snapshot } from '../models/snapshot.model';
 @DatasetProvider({
   id: 'orders',
   description: 'retrieves Orders, limited to 100-first records',
+  filterables: ['code', 'status', 'paymentDate'],
 })
 export class OrdersDataset extends IDataset {
   async fetch(

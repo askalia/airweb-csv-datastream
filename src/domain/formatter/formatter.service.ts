@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { IFormatter, IFormatterMetadata } from './models/iformatter.model';
 
 import { IDatasetMetadata } from '../dataset/models';
@@ -29,8 +29,10 @@ export class FormatterService {
   }
 
   getFormatterById(id: string): IFormatter | undefined {
-    if (!this.registry.has(id)) {
-      return undefined;
+    if (!this.validateFormat(id)) {
+      throw new NotFoundException(
+        `format '${id}' is empty or not supported. Please check supported formats : ${process.env.HOST_URL}/formats`,
+      );
     }
     return this.registry.get(id)?.provider;
   }
