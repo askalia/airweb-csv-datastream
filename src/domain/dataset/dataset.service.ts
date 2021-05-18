@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
 import { IDataset, IDatasetFetchOptions, IDatasetMetadata } from './models';
-import StreamFromPromise from 'stream-from-promise';
+import { Readable } from 'node:stream';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
@@ -88,7 +88,7 @@ export class DatasetService {
       limit: IDatasetFetchOptions['limit'];
       filters: IDatasetFetchOptions['filters'];
     },
-  ): StreamFromPromise {
+  ): Readable {
     const dataset = this.getDatasetById(datasetId);
     if (!this.validateDataset(dataset)) {
       throw new Error(

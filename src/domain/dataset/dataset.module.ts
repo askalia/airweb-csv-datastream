@@ -1,6 +1,6 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
-import { CommonModule } from 'src/common/common.module';
+import { CommonModule } from '../../common/common.module';
 import { DATASET_TAG } from './dataset.decorator';
 import * as datasets from './datasets/index';
 

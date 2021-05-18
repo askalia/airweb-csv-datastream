@@ -4,6 +4,7 @@ import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
 import { Snapshot } from '../models/snapshot.model';
 import * as StreamFromPromise from 'stream-from-promise';
+import { Readable } from 'node:stream';
 
 @Injectable()
 @DatasetProvider({
@@ -37,9 +38,7 @@ export class OrdersDataset extends IDataset {
     });
   }
 
-  fetchAsStream(
-    options: IDatasetFetchOptions<OrdersDatasetFilters>,
-  ): StreamFromPromise {
+  fetchAsStream(options: IDatasetFetchOptions<OrdersDatasetFilters>): Readable {
     this._checkSetup();
 
     const _getDataFetcher = () => {
@@ -54,10 +53,14 @@ export class OrdersDataset extends IDataset {
           networkId: true,
           taxFreeTotal: true,
           total: true,
-          //user: true,
+          /*user: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },*/
         },
       };
-      console.log('prisma args : ', JSON.stringify(args, null, 4));
       return (this?._orm || {}).order.findMany(args);
     };
 

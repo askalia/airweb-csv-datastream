@@ -1,4 +1,4 @@
-import { IDatasetMetadata } from 'src/domain/dataset';
+import { IDatasetMetadata } from '../../../domain/dataset';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ResourceMetadata implements IDatasetMetadata {

@@ -1,9 +1,9 @@
-import { PrismaService } from 'src/common/db/prisma.service';
-import { Snapshot } from 'src/domain/dataset/models/snapshot.model';
+import { PrismaService } from '../../../common/db/prisma.service';
+import { Snapshot } from '../../../domain/dataset/models/snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
 import { IDatasetFetchOptions } from './dataset-fetch-options.model';
 import { IDatasetMetadata } from './dataset-metadata.model';
-import StreamFromPromise from 'stream-from-promise';
+import { Readable } from 'node:stream';
 
 export abstract class IDataset {
   static id: string;
@@ -22,7 +22,7 @@ export abstract class IDataset {
     return { id: IDataset.id, description: IDataset.description };
   }
   abstract fetch(options: IDatasetFetchOptions): Promise<Snapshot>;
-  abstract fetchAsStream(options: IDatasetFetchOptions): StreamFromPromise;
+  abstract fetchAsStream(options: IDatasetFetchOptions): Readable;
 
   protected _checkSetup() {
     if (!(this._orm instanceof PrismaService)) {
