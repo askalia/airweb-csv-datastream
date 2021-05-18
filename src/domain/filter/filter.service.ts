@@ -44,6 +44,10 @@ export class FilterService {
     }, {});
   }
 
+  public getDirections(){
+    
+  }
+
   private _parsedValue(rawValue: string | number): string | number {
     function _valueHasQuotes(value: string) {
       const QUOTES = ['"', "'"];

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
 import { Snapshot } from '../models/snapshot.model';
+import * as StreamFromPromise from 'stream-from-promise';
 
 @Injectable()
 @DatasetProvider({
@@ -15,8 +16,7 @@ export class OrdersDataset extends IDataset {
     options: IDatasetFetchOptions<OrdersDatasetFilters>,
   ): Promise<Snapshot> {
     this._checkSetup();
-
-    this._stream = await (this?._orm || {}).order.findMany({
+    return this?._orm?.order.findMany({
       where: this.where<OrdersDatasetFilters>(options?.filters),
       take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
       orderBy: options?.orderBy || undefined,
@@ -27,15 +27,41 @@ export class OrdersDataset extends IDataset {
         networkId: true,
         taxFreeTotal: true,
         total: true,
-        user: {
+        /*user: {
           select: {
             firstname: true,
             lastname: true,
           },
-        },
+        },*/
       },
     });
-    return this._stream;
+  }
+
+  fetchAsStream(
+    options: IDatasetFetchOptions<OrdersDatasetFilters>,
+  ): StreamFromPromise {
+    this._checkSetup();
+
+    const _getDataFetcher = () => {
+      const args = {
+        where: this.where<OrdersDatasetFilters>(options?.filters),
+        take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
+        orderBy: options?.orderBy || undefined,
+        select: {
+          id: true,
+          code: true,
+          userId: true,
+          networkId: true,
+          taxFreeTotal: true,
+          total: true,
+          //user: true,
+        },
+      };
+      console.log('prisma args : ', JSON.stringify(args, null, 4));
+      return (this?._orm || {}).order.findMany(args);
+    };
+
+    return StreamFromPromise.obj(_getDataFetcher());
   }
 }
 

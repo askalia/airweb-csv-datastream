@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
 import { IDataset, IDatasetFetchOptions, IDatasetMetadata } from './models';
+import StreamFromPromise from 'stream-from-promise';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
@@ -40,7 +41,7 @@ export class DatasetService {
     return dataset !== undefined && dataset instanceof IDataset;
   }
 
-  listAllIds(): IDatasetMetadata[] {
+  listAllMetadata(): IDatasetMetadata[] {
     const sortAsc = (provider, providerNext) => {
       return provider.id < providerNext.id ? -1 : 1;
     };
@@ -74,5 +75,31 @@ export class DatasetService {
       filters,
     });
     return dataStream;
+  }
+
+  getDatasetItemsAsStream(
+    datasetId: string,
+    {
+      orderBy,
+      limit,
+      filters,
+    }: {
+      orderBy: IDatasetFetchOptions['orderBy'];
+      limit: IDatasetFetchOptions['limit'];
+      filters: IDatasetFetchOptions['filters'];
+    },
+  ): StreamFromPromise {
+    const dataset = this.getDatasetById(datasetId);
+    if (!this.validateDataset(dataset)) {
+      throw new Error(
+        `Dataset '${datasetId}' not found. Please check available Datasets : ${process.env.HOST_URL}/datasets`,
+      );
+    }
+
+    return dataset.fetchAsStream({
+      orderBy,
+      limit,
+      filters,
+    });
   }
 }

@@ -37,11 +37,16 @@ export class FormatterService {
     return this.registry.get(id)?.provider;
   }
 
-  validateFormat(format: string): boolean {
-    return Array.from(this.registry.keys()).includes(format);
+  checkFormatIsDefined(format: string): boolean {
+    return !(format === undefined || format === null || format?.trim() === '');
   }
 
-  listAllIds(): IDatasetMetadata[] {
+  validateFormat(format: string): boolean {
+    this.checkFormatIsDefined(format);
+    return Array.from(this.registry.keys()).includes(format.toLowerCase());
+  }
+
+  listAllMetadata(): IDatasetMetadata[] {
     const sortAsc = (provider, providerNext) => {
       return provider.id < providerNext.id ? -1 : 1;
     };

@@ -5,6 +5,12 @@ import {
   Get,
   Param,
   Query,
+  ParseIntPipe,
+  ExceptionFilter,
+  ArgumentsHost,
+  Catch,
+  UseFilters,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import {
@@ -21,16 +27,13 @@ import {
   DatasetService,
   IDatasetFetchOptions,
 } from '../../../domain/dataset';
-import { FormatterService } from '../../../domain/formatter';
+import { FormatterService, IFormatter } from '../../../domain/formatter';
 
 import { MapToJsonPipe } from '../pipes/map-to-json.pipe';
 import { ResourceMetadata } from '../dto';
 import { DatasetFiltersParserPipe } from '../pipes/dataset-filters-parser.pipe';
-
-/*@PipeTransform()
-class FilterToJson {
-  trans
-}*/
+import { FormatSupportedPipe } from '../pipes/format-supported.pipe';
+import { OrderbySupportedPipe } from '../pipes/orderby-supported.pipe';
 
 @Controller('datasets')
 export class DatasetController {
@@ -71,33 +74,73 @@ export class DatasetController {
     example: 'name:asc',
     required: false,
   })
+  @ApiQuery({
+    name: 'stream',
+    type: 'boolean',
+    description: 'reply with data as a stream (default is false)',
+    required: false,
+  })
   async getDatasetExported(
-    @Param('datasetId') datasetId: IDatasetMetadata['id'],
-    @Query('format') formatExpected: string,
-    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
-    @Query('limit') limit: IDatasetFetchOptions['limit'],
+    @Param('datasetId')
+    datasetId: IDatasetMetadata['id'],
+    @Query('format', FormatSupportedPipe)
+    formatExpected: string,
+    @Query('orderby', MapToJsonPipe, OrderbySupportedPipe)
+    orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('limit', ParseIntPipe)
+    limit: IDatasetFetchOptions['limit'],
     @Query('filters', DatasetFiltersParserPipe)
     filters: IDatasetFetchOptions['filters'],
+    @Query('stream', ParseBoolPipe)
+    asStream = false,
     @Response() httpResponse: FastifyReply,
   ) {
     try {
+      const _responseAsBuffer = async (formatter: IFormatter) => {
+        const dataStream = await this._datasetService.getDatasetItems(
+          datasetId,
+          {
+            orderBy,
+            limit,
+            filters,
+          },
+        );
+
+        const { formattedStream, contentType } = await formatter.format(
+          dataStream,
+        );
+        return httpResponse
+          .headers({
+            'Content-Type': contentType,
+          })
+          .send(formattedStream);
+      };
+
+      const _responseAsStream = (formatter: IFormatter) => {
+        this._datasetService
+          .getDatasetItemsAsStream(datasetId, {
+            orderBy,
+            limit,
+            filters,
+          })
+          .on('data', (data) => {
+            formatter.format(data).then(({ formattedStream, contentType }) => {
+              httpResponse
+                .headers({
+                  'Content-Type': contentType,
+                })
+                .send(formattedStream);
+            });
+          });
+      };
+
       const dataFormatter = this._formatterService.getFormatterById(
         formatExpected,
       );
-      const dataStream = await this._datasetService.getDatasetItems(datasetId, {
-        orderBy,
-        limit,
-        filters,
-      });
+      const responseAs =
+        asStream === true ? _responseAsStream : _responseAsBuffer;
 
-      const { formattedStream, contentType } = await dataFormatter.format(
-        dataStream,
-      );
-      return httpResponse
-        .headers({
-          'Content-Type': contentType,
-        })
-        .send(formattedStream);
+      return responseAs(dataFormatter);
     } catch (e) {
       if (e instanceof Error) {
         throw new BadRequestException((e as Error).message);
@@ -143,7 +186,8 @@ export class DatasetController {
   })
   async getDatasetItems(
     @Param('datasetId') datasetId: IDatasetMetadata['id'],
-    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('orderby', MapToJsonPipe, OrderbySupportedPipe)
+    orderBy: IDatasetFetchOptions['orderBy'],
     @Query('limit') limit: IDatasetFetchOptions['limit'],
     @Query('filters', DatasetFiltersParserPipe)
     filters: IDatasetFetchOptions['filters'],
@@ -163,6 +207,6 @@ export class DatasetController {
     description: 'Datasets available',
   })
   async listDatasets() {
-    return this._datasetService.listAllIds();
+    return this._datasetService.listAllMetadata();
   }
 }
