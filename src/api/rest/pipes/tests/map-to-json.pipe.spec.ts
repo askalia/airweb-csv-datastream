@@ -1,4 +1,4 @@
-import { MapToJsonPipe } from './map-to-json.pipe';
+import { MapToJsonPipe } from '../map-to-json.pipe';
 
 describe('MapToJsonPipe', () => {
   it('should be defined', () => {

@@ -5,6 +5,8 @@ import {
   Get,
   Param,
   Query,
+  ParseBoolPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import {
@@ -21,16 +23,16 @@ import {
   DatasetService,
   IDatasetFetchOptions,
 } from '../../../domain/dataset';
-import { FormatterService } from '../../../domain/formatter';
+import { FormatterService, IFormatter } from '../../../domain/formatter';
 
-import { MapToJsonPipe } from '../pipes/map-to-json.pipe';
+import {
+  OrderbySupportedPipe,
+  FormatSupportedPipe,
+  MapToJsonPipe,
+  DatasetFiltersParserPipe,
+  OptionableParseTypePipe,
+} from '../pipes';
 import { ResourceMetadata } from '../dto';
-import { DatasetFiltersParserPipe } from '../pipes/dataset-filters-parser.pipe';
-
-/*@PipeTransform()
-class FilterToJson {
-  trans
-}*/
 
 @Controller('datasets')
 export class DatasetController {
@@ -71,40 +73,96 @@ export class DatasetController {
     example: 'name:asc',
     required: false,
   })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    description: '',
+    example: 'name:asc',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'stream',
+    type: 'boolean',
+    description: 'reply with data as a stream (default is false)',
+    required: false,
+  })
   async getDatasetExported(
-    @Param('datasetId') datasetId: IDatasetMetadata['id'],
-    @Query('format') formatExpected: string,
-    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
-    @Query('limit') limit: IDatasetFetchOptions['limit'],
+    @Param('datasetId')
+    datasetId: IDatasetMetadata['id'],
+    @Query('format', FormatSupportedPipe)
+    formatExpected: string,
+    @Query('orderby', MapToJsonPipe, OrderbySupportedPipe)
+    orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('limit', { transform: OptionableParseTypePipe(ParseIntPipe) })
+    limit: IDatasetFetchOptions['limit'],
     @Query('filters', DatasetFiltersParserPipe)
     filters: IDatasetFetchOptions['filters'],
-    @Response() httpResponse: FastifyReply,
+    @Query('stream', { transform: OptionableParseTypePipe(ParseBoolPipe) })
+    asStream = false,
+    @Response()
+    httpResponse: FastifyReply,
   ) {
-    try {
-      const dataFormatter = this._formatterService.getFormatterById(
-        formatExpected,
-      );
-      const dataStream = await this._datasetService.getDatasetItems(datasetId, {
-        orderBy,
-        limit,
-        filters,
-      });
+    const _responseAsBuffer = async (formatter: IFormatter) => {
+      try {
+        const dataStream = await this._datasetService.getDatasetItems(
+          datasetId,
+          {
+            orderBy,
+            limit,
+            filters,
+          },
+        );
 
-      const { formattedStream, contentType } = await dataFormatter.format(
-        dataStream,
-      );
-      return httpResponse
-        .headers({
-          'Content-Type': contentType,
-        })
-        .send(formattedStream);
-    } catch (e) {
-      if (e instanceof Error) {
-        throw new BadRequestException((e as Error).message);
-      } else {
-        throw e;
+        const { formattedStream, contentType } = await formatter.format(
+          dataStream,
+        );
+        return httpResponse
+          .headers({
+            'Content-Type': contentType,
+          })
+          .send(formattedStream);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new BadRequestException((e as Error).message);
+        } else {
+          throw e;
+        }
       }
-    }
+    };
+
+    const _responseAsStream = (formatter: IFormatter) => {
+      try {
+        this._datasetService
+          .getDatasetItemsAsStream(datasetId, {
+            orderBy,
+            limit,
+            filters,
+          })
+          .on('data', (data) => {
+            formatter.format(data).then(({ formattedStream, contentType }) => {
+              httpResponse
+                .headers({
+                  'Content-Type': contentType,
+                })
+                .send(formattedStream);
+            });
+          });
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new BadRequestException((e as Error).message);
+        } else {
+          throw e;
+        }
+      }
+    };
+
+    const dataFormatter = this._formatterService.getFormatterById(
+      formatExpected,
+    );
+    const responseAs =
+      asStream === true ? _responseAsStream : _responseAsBuffer;
+
+    return responseAs(dataFormatter);
   }
 
   @Get('/:datasetId/items')
@@ -142,9 +200,12 @@ export class DatasetController {
     required: false,
   })
   async getDatasetItems(
-    @Param('datasetId') datasetId: IDatasetMetadata['id'],
-    @Query('orderby', MapToJsonPipe) orderBy: IDatasetFetchOptions['orderBy'],
-    @Query('limit') limit: IDatasetFetchOptions['limit'],
+    @Param('datasetId')
+    datasetId: IDatasetMetadata['id'],
+    @Query('orderby', MapToJsonPipe, OrderbySupportedPipe)
+    orderBy: IDatasetFetchOptions['orderBy'],
+    @Query('limit', { transform: OptionableParseTypePipe(ParseIntPipe) })
+    limit: IDatasetFetchOptions['limit'],
     @Query('filters', DatasetFiltersParserPipe)
     filters: IDatasetFetchOptions['filters'],
   ) {
@@ -163,6 +224,6 @@ export class DatasetController {
     description: 'Datasets available',
   })
   async listDatasets() {
-    return this._datasetService.listAllIds();
+    return this._datasetService.listAllMetadata();
   }
 }

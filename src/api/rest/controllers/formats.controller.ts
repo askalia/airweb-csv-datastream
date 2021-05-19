@@ -14,6 +14,6 @@ export class FormatsController {
     description: 'Formats available',
   })
   listAll() {
-    return this._formatterRegister.listAllIds();
+    return this._formatterRegister.listAllMetadata();
   }
 }

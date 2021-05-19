@@ -1,4 +1,4 @@
-import { StringToJsonPipe } from './string-to-json.pipe';
+import { StringToJsonPipe } from '../string-to-json.pipe';
 
 describe('StringToJsonPipe', () => {
   it('should be defined', () => {

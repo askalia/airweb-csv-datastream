@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
 import { IDataset, IDatasetFetchOptions, IDatasetMetadata } from './models';
+import { Readable } from 'node:stream';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
@@ -33,20 +34,27 @@ export class DatasetService {
       return undefined;
     }
     const dataset = this.registry.get(id);
-    return dataset.provider.setup({ orm: this.orm });
+    return dataset.provider.setup({ orm: this.orm, service: this });
   }
 
   validateDataset(dataset): boolean {
     return dataset !== undefined && dataset instanceof IDataset;
   }
 
-  listAllIds(): IDatasetMetadata[] {
+  listAllMetadata(): IDatasetMetadata[] {
     const sortAsc = (provider, providerNext) => {
       return provider.id < providerNext.id ? -1 : 1;
     };
     return Array.from(this.registry.values())
       .map(({ metadata }) => metadata)
       .sort(sortAsc);
+  }
+
+  getMetadataOf(datasetId: string): IDatasetMetadata {
+    const dataset = Array.from(this.registry.values()).find(
+      (ds) => ds?.metadata?.id === datasetId,
+    );
+    return dataset?.metadata;
   }
 
   async getDatasetItems(
@@ -74,5 +82,31 @@ export class DatasetService {
       filters,
     });
     return dataStream;
+  }
+
+  getDatasetItemsAsStream(
+    datasetId: string,
+    {
+      orderBy,
+      limit,
+      filters,
+    }: {
+      orderBy: IDatasetFetchOptions['orderBy'];
+      limit: IDatasetFetchOptions['limit'];
+      filters: IDatasetFetchOptions['filters'];
+    },
+  ): Readable {
+    const dataset = this.getDatasetById(datasetId);
+    if (!this.validateDataset(dataset)) {
+      throw new Error(
+        `Dataset '${datasetId}' not found. Please check available Datasets : ${process.env.HOST_URL}/datasets`,
+      );
+    }
+
+    return dataset.fetchAsStream({
+      orderBy,
+      limit,
+      filters,
+    });
   }
 }
