@@ -40,18 +40,22 @@ export abstract class IDataset {
       throw new Error('dataset : service is not set. Please check setup');
     }
   }
-  protected where<D>(filters: IDatasetFetchOptions<D>['filters']) {
+  protected where<TDataset>(
+    filters: IDatasetFetchOptions<TDataset>['filters'],
+  ) {
     if (!filters) {
       return {};
     }
-    this.validateFilters<D>(filters);
+    this.validateFilters<TDataset>(filters);
 
     return {
       AND: filters,
     };
   }
 
-  private validateFilters<D>(filters: IDatasetFetchOptions<D>['filters']) {
+  private validateFilters<TDataset>(
+    filters: IDatasetFetchOptions<TDataset>['filters'],
+  ) {
     const { filterables } = this.service.getMetadataOf(this.id);
     const targettedProps = Object.keys(filters);
 
