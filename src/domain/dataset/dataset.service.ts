@@ -34,7 +34,7 @@ export class DatasetService {
       return undefined;
     }
     const dataset = this.registry.get(id);
-    return dataset.provider.setup({ orm: this.orm });
+    return dataset.provider.setup({ orm: this.orm, service: this });
   }
 
   validateDataset(dataset): boolean {
@@ -48,6 +48,13 @@ export class DatasetService {
     return Array.from(this.registry.values())
       .map(({ metadata }) => metadata)
       .sort(sortAsc);
+  }
+
+  getMetadataOf(datasetId: string): IDatasetMetadata {
+    const dataset = Array.from(this.registry.values()).find(
+      (ds) => ds?.metadata?.id === datasetId,
+    );
+    return dataset?.metadata;
   }
 
   async getDatasetItems(

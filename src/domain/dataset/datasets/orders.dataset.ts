@@ -6,18 +6,23 @@ import { Snapshot } from '../models/snapshot.model';
 import * as StreamFromPromise from 'stream-from-promise';
 import { Readable } from 'node:stream';
 
-@Injectable()
-@DatasetProvider({
+const decorator = {
   id: 'orders',
   description: 'retrieves Orders, limited to 100-first records',
-  filterables: ['code', 'status', 'paymentDate'],
-})
+  filterables: ['id', 'code', 'status', 'paymentDate', 'total'],
+};
+
+@Injectable()
+@DatasetProvider(decorator)
 export class OrdersDataset extends IDataset {
+  constructor() {
+    super(decorator.id);
+  }
   async fetch(
     options: IDatasetFetchOptions<OrdersDatasetFilters>,
   ): Promise<Snapshot> {
-    this._checkSetup();
-    return this?._orm?.order.findMany({
+    this.checkSetup();
+    return this?.orm?.order?.findMany({
       where: this.where<OrdersDatasetFilters>(options?.filters),
       take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
       orderBy: options?.orderBy || undefined,
@@ -39,7 +44,7 @@ export class OrdersDataset extends IDataset {
   }
 
   fetchAsStream(options: IDatasetFetchOptions<OrdersDatasetFilters>): Readable {
-    this._checkSetup();
+    this.checkSetup();
 
     const _getDataFetcher = () => {
       const args = {
@@ -61,7 +66,7 @@ export class OrdersDataset extends IDataset {
         },*/
         },
       };
-      return (this?._orm || {}).order.findMany(args);
+      return this?.orm?.order?.findMany(args);
     };
 
     return StreamFromPromise.obj(_getDataFetcher());

@@ -1,4 +1,4 @@
-import { OrderbySupportedPipe } from './orderby-supported.pipe';
+import { OrderbySupportedPipe } from '../orderby-supported.pipe';
 
 describe('OrderbySupportedPipe', () => {
   it('should be defined', () => {

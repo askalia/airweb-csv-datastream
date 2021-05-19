@@ -1,4 +1,4 @@
-import { FormatSupportedPipe } from './format-supported.pipe';
+import { FormatSupportedPipe } from '../format-supported.pipe';
 
 describe('FormatSupportedPipe', () => {
   it('should be defined', () => {
