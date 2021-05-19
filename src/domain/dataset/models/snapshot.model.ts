@@ -1,1 +1,1 @@
-export type Snapshot<T = unknown> = T[];
+export type Snapshot<TRecordType = unknown> = TRecordType[];
