@@ -22,6 +22,7 @@ import {
   IDatasetMetadata,
   DatasetService,
   IDatasetFetchOptions,
+  Snapshot,
 } from '../../../domain/dataset';
 import { FormatterService, IFormatter } from '../../../domain/formatter';
 
@@ -33,6 +34,7 @@ import {
   OptionableParseTypePipe,
 } from '../pipes';
 import { ResourceMetadata } from '../dto';
+import { createReadStream } from 'node:fs';
 
 @Controller('datasets')
 export class DatasetController {
@@ -130,39 +132,51 @@ export class DatasetController {
       }
     };
 
-    const _responseAsStream = (formatter: IFormatter) => {
-      try {
-        this._datasetService
-          .getDatasetItemsAsStream(datasetId, {
-            orderBy,
-            limit,
-            filters,
-          })
-          .on('data', (data) => {
-            formatter.format(data).then(({ formattedStream, contentType }) => {
-              httpResponse
-                .headers({
-                  'Content-Type': contentType,
-                })
-                .send(formattedStream);
-            });
+    const _responseAsStream = async (formatter: IFormatter) => {
+      
+      const dataStream = this._datasetService.getDatasetItemsAsStream(datasetId, {
+        orderBy,
+        limit,
+        filters,
+      })
+
+      async function streamToBuffer (stream) {
+        return new Promise((resolve, reject) => {
+          const data = [];
+    
+          stream.on('data', (chunk) => {
+            data.push(chunk);
           });
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new BadRequestException((e as Error).message);
-        } else {
-          throw e;
-        }
+    
+          stream.on('end', () => {
+            resolve(data)
+          })
+    
+          stream.on('error', (err) => {
+            reject(err)
+          })
+       
+        })
       }
-    };
+
+      const { formattedStream, contentType } = await formatter.format(
+        await streamToBuffer(dataStream) as Snapshot<any>,
+      );
+      return httpResponse
+        .headers({
+          'Content-Type': contentType,
+        })
+        .send(formattedStream);
+
+    }
 
     const dataFormatter = this._formatterService.getFormatterById(
       formatExpected,
-    );
+    );    
     const responseAs =
       asStream === true ? _responseAsStream : _responseAsBuffer;
 
-    return responseAs(dataFormatter);
+    responseAs(dataFormatter);
   }
 
   @Get('/:datasetId/items')

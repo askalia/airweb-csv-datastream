@@ -12,9 +12,9 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
-
+  
   setupSwagger(app);
 
-  await app.listen(app.get('HTTP_PORT'));
+  await app.listen(process.env.HTTP_PORT, "0.0.0.0");
 }
 bootstrap();
