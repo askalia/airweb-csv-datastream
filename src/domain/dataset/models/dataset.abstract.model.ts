@@ -2,7 +2,7 @@ import { PrismaService } from '../../../common/db/prisma.service';
 import { Snapshot } from '../../../domain/dataset/models/snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
 import { IDatasetFetchOptions } from './dataset-fetch-options.model';
-import { Readable } from 'node:stream';
+import { Readable } from 'stream';
 import { DatasetService } from '../dataset.service';
 
 export abstract class IDataset {
@@ -40,6 +40,17 @@ export abstract class IDataset {
       throw new Error('dataset : service is not set. Please check setup');
     }
   }
+
+  public getQueryCommons<TDatasetFilters>(
+    options: IDatasetFetchOptions<TDatasetFilters>,
+  ) {
+    return {
+      where: this.where<TDatasetFilters>(options?.filters),
+      take: this.take(options?.limit),
+      orderBy: options?.orderBy,
+    };
+  }
+
   protected where<TDataset>(
     filters: IDatasetFetchOptions<TDataset>['filters'],
   ) {
@@ -51,6 +62,10 @@ export abstract class IDataset {
     return {
       AND: filters,
     };
+  }
+
+  protected take(howMany: number) {
+    return howMany || IDataset.RECORDS_DEFAULT_LIMIT;
   }
 
   private validateFilters<TDataset>(
