@@ -4,11 +4,11 @@ import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
 import { Snapshot } from '../models/snapshot.model';
 import * as StreamFromPromise from 'stream-from-promise';
-import { Readable } from 'node:stream';
+import { Readable } from 'stream';
 
 const decorator = {
   id: 'orders',
-  description: 'retrieves Orders, limited to 100-first records',
+  description: 'retrieves Orders',
   filterables: ['id', 'code', 'status', 'paymentDate', 'total'],
 };
 
@@ -23,9 +23,7 @@ export class OrdersDataset extends IDataset {
   ): Promise<Snapshot> {
     this.checkSetup();
     return this?.orm?.order?.findMany({
-      where: this.where<OrdersDatasetFilters>(options?.filters),
-      take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
-      orderBy: options?.orderBy || undefined,
+      ...this.getQueryCommons<OrdersDatasetFilters>(options),
       select: {
         id: true,
         code: true,

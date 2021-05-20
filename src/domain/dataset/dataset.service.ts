@@ -1,12 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service';
-import { IDataset, IDatasetFetchOptions, IDatasetMetadata } from './models';
-import { Readable } from 'node:stream';
+import { IDataset, IDatasetFetchOptions, IDatasetMetadata, IDatasetMetadataSwagger } from './models';
+import { Readable } from 'stream';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
   provider: IDataset;
 }
+
+
 
 @Injectable()
 export class DatasetService {
@@ -41,12 +43,15 @@ export class DatasetService {
     return dataset !== undefined && dataset instanceof IDataset;
   }
 
-  listAllMetadata(): IDatasetMetadata[] {
+  listAllMetadata(): IDatasetMetadataSwagger[] {
     const sortAsc = (provider, providerNext) => {
       return provider.id < providerNext.id ? -1 : 1;
     };
     return Array.from(this.registry.values())
-      .map(({ metadata }) => metadata)
+      .map(({ metadata }) => ({
+        ...metadata,
+        filterables: metadata?.filterables || '*',
+      }))
       .sort(sortAsc);
   }
 
