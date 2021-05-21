@@ -12,10 +12,11 @@ import { withFlattening } from '../helpers';
   description: 'a simple csv formatter',
 })
 export class CSVFormatter extends IFormatter {
-  async format(
+  static contentType = 'text/csv';
+  format(
     data: Snapshot,
     options?: { customHeaders?: string[] },
-  ): Promise<IFormatterFormat> {
+  ): IFormatterFormat {
     const csvOptions = {
       fieldSeparator: ';',
       quoteStrings: '"',
@@ -34,7 +35,7 @@ export class CSVFormatter extends IFormatter {
         withFlattening(data),
         shouldReturnCsv,
       ),
-      contentType: 'text/csv',
+      contentType: CSVFormatter.contentType,
     };
   }
 }

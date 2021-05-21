@@ -1,3 +1,5 @@
+const streamRes = require('stream-res');
+
 import {
   BadRequestException,
   Controller,
@@ -24,7 +26,7 @@ import {
   IDatasetFetchOptions,
   Snapshot,
 } from '../../../domain/dataset';
-import { FormatterService, IFormatter } from '../../../domain/formatter';
+import { FormatterService, IFormatter, IFormatterFormat } from '../../../domain/formatter';
 
 import {
   OrderbySupportedPipe,
@@ -133,17 +135,16 @@ export class DatasetController {
     };
 
     const _responseAsStream = async (formatter: IFormatter) => {
-      
+      console.log('_responseAsStream')
       const dataStream = this._datasetService.getDatasetItemsAsStream(datasetId, {
         orderBy,
         limit,
         filters,
       })
 
-      async function streamToBuffer (stream) {
+      async function streamToBuffer (stream): Promise<Snapshot<any>> {
         return new Promise((resolve, reject) => {
           const data = [];
-    
           stream.on('data', (chunk) => {
             data.push(chunk);
           });
@@ -158,15 +159,15 @@ export class DatasetController {
        
         })
       }
-
-      const { formattedStream, contentType } = await formatter.format(
-        await streamToBuffer(dataStream) as Snapshot<any>,
-      );
-      return httpResponse
-        .headers({
-          'Content-Type': contentType,
-        })
-        .send(formattedStream);
+        
+      const buffer = await streamToBuffer(dataStream);
+      
+      const { formattedStream, contentType } = formatter.format(buffer) as IFormatterFormat;
+      httpResponse
+          .headers({
+            'Content-Type': contentType,
+          })
+          .send(formattedStream);
 
     }
 
@@ -176,7 +177,7 @@ export class DatasetController {
     const responseAs =
       asStream === true ? _responseAsStream : _responseAsBuffer;
 
-    responseAs(dataFormatter);
+     await  responseAs(dataFormatter);
   }
 
   @Get('/:datasetId/items')
