@@ -1,17 +1,14 @@
-const streamRes = require('stream-res');
-
 import {
   BadRequestException,
   Controller,
-  Response as ResponseDecorator,
+  Response,
   Get,
   Param,
   Query,
   ParseBoolPipe,
   ParseIntPipe,
 } from '@nestjs/common';
-//import { FastifyReply } from 'fastify';
-import { Response } from 'express';
+import { Response as HttpResponse } from 'express';
 import {
   ApiParam,
   ApiBadRequestResponse,
@@ -25,14 +22,9 @@ import {
   IDatasetMetadata,
   DatasetService,
   IDatasetFetchOptions,
-  Snapshot,
   IDataset,
 } from '../../../domain/dataset';
-import {
-  FormatterService,
-  IFormatter,
-  IFormatterFormat,
-} from '../../../domain/formatter';
+import { FormatterService, IFormatter } from '../../../domain/formatter';
 
 import {
   OrderbySupportedPipe,
@@ -42,8 +34,6 @@ import {
   OptionableParseTypePipe,
 } from '../pipes';
 import { ResourceMetadata } from '../dto';
-import { createReadStream } from 'node:fs';
-import { AsyncParser, parseAsync } from 'json2csv';
 
 @Controller('datasets')
 export class DatasetController {
@@ -110,8 +100,8 @@ export class DatasetController {
     filters: IDatasetFetchOptions['filters'],
     @Query('stream', { transform: OptionableParseTypePipe(ParseBoolPipe) })
     asStream = false,
-    @ResponseDecorator()
-    httpResponse: Response,
+    @Response()
+    httpResponse: HttpResponse,
   ) {
     const _responseAsBuffer = async (formatter: IFormatter) => {
       try {
