@@ -24,4 +24,6 @@ export class XMLFormatter extends IFormatter {
       contentType: 'text/xml',
     };
   }
+
+  formatAsync() {}
 }

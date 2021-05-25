@@ -1,7 +1,7 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-export const setupSwagger = (app: NestFastifyApplication) => {
+export const setupSwagger = (app: NestExpressApplication) => {
   const config = new DocumentBuilder()
     .setTitle('Export API docs')
     .setDescription('Airweb Export Rest API documentation')

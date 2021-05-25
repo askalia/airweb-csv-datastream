@@ -1,14 +1,17 @@
+const streamRes = require('stream-res');
+
 import {
   BadRequestException,
   Controller,
-  Response,
+  Response as ResponseDecorator,
   Get,
   Param,
   Query,
   ParseBoolPipe,
   ParseIntPipe,
 } from '@nestjs/common';
-import { FastifyReply } from 'fastify';
+//import { FastifyReply } from 'fastify';
+import { Response } from 'express';
 import {
   ApiParam,
   ApiBadRequestResponse,
@@ -22,8 +25,14 @@ import {
   IDatasetMetadata,
   DatasetService,
   IDatasetFetchOptions,
+  Snapshot,
+  IDataset,
 } from '../../../domain/dataset';
-import { FormatterService, IFormatter } from '../../../domain/formatter';
+import {
+  FormatterService,
+  IFormatter,
+  IFormatterFormat,
+} from '../../../domain/formatter';
 
 import {
   OrderbySupportedPipe,
@@ -33,6 +42,8 @@ import {
   OptionableParseTypePipe,
 } from '../pipes';
 import { ResourceMetadata } from '../dto';
+import { createReadStream } from 'node:fs';
+import { AsyncParser, parseAsync } from 'json2csv';
 
 @Controller('datasets')
 export class DatasetController {
@@ -99,8 +110,8 @@ export class DatasetController {
     filters: IDatasetFetchOptions['filters'],
     @Query('stream', { transform: OptionableParseTypePipe(ParseBoolPipe) })
     asStream = false,
-    @Response()
-    httpResponse: FastifyReply,
+    @ResponseDecorator()
+    httpResponse: Response,
   ) {
     const _responseAsBuffer = async (formatter: IFormatter) => {
       try {
@@ -116,11 +127,9 @@ export class DatasetController {
         const { formattedStream, contentType } = await formatter.format(
           dataStream,
         );
-        return httpResponse
-          .headers({
-            'Content-Type': contentType,
-          })
-          .send(formattedStream);
+        httpResponse.setHeader('Content-Type', contentType);
+
+        return httpResponse.send(formattedStream);
       } catch (e) {
         if (e instanceof Error) {
           throw new BadRequestException((e as Error).message);
@@ -130,30 +139,23 @@ export class DatasetController {
       }
     };
 
-    const _responseAsStream = (formatter: IFormatter) => {
-      try {
-        this._datasetService
-          .getDatasetItemsAsStream(datasetId, {
-            orderBy,
-            limit,
-            filters,
-          })
-          .on('data', (data) => {
-            formatter.format(data).then(({ formattedStream, contentType }) => {
-              httpResponse
-                .headers({
-                  'Content-Type': contentType,
-                })
-                .send(formattedStream);
-            });
-          });
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new BadRequestException((e as Error).message);
-        } else {
-          throw e;
-        }
-      }
+    const _responseAsStream = async (formatter: IFormatter) => {
+      console.log('_responseAsStream');
+
+      const dataStream = this._datasetService.getDatasetItemsAsStream(
+        datasetId,
+        {
+          orderBy,
+          limit,
+          filters,
+        },
+      );
+
+      formatter.formatAsync(
+        dataStream,
+        httpResponse,
+        IDataset.DEFAULT_RECORDS_CHUNKING,
+      );
     };
 
     const dataFormatter = this._formatterService.getFormatterById(
@@ -162,7 +164,7 @@ export class DatasetController {
     const responseAs =
       asStream === true ? _responseAsStream : _responseAsBuffer;
 
-    return responseAs(dataFormatter);
+    responseAs(dataFormatter);
   }
 
   @Get('/:datasetId/items')

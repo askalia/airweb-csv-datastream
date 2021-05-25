@@ -1,3 +1,4 @@
+import { Readable, Writable } from 'node:stream';
 import { Snapshot } from '../../dataset/models/snapshot.model';
 import { IFormatterFormat } from './iformatter-format.model';
 
@@ -7,5 +8,15 @@ export interface IFormatterMetadata {
 }
 
 export abstract class IFormatter {
-  abstract format(data: Snapshot, options?: unknown): Promise<IFormatterFormat>;
+  static readonly contentType: string;
+  abstract format(
+    data: Snapshot,
+    options?: unknown,
+  ): IFormatterFormat | Promise<IFormatterFormat>;
+
+  abstract formatAsync(
+    dataStream: Readable,
+    httpResponse: Writable,
+    chunkingSize: number,
+  ): void;
 }

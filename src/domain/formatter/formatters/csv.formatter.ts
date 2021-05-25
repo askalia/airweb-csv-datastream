@@ -5,6 +5,8 @@ import { IFormatterFormat } from '../models/iformatter-format.model';
 import { Injectable } from '@nestjs/common';
 import { FormatterProvider } from '../formatter.decorator';
 import { withFlattening } from '../helpers';
+import { AsyncParser } from 'json2csv';
+import { Readable, Writable } from 'stream';
 
 @Injectable()
 @FormatterProvider({
@@ -12,10 +14,11 @@ import { withFlattening } from '../helpers';
   description: 'a simple csv formatter',
 })
 export class CSVFormatter extends IFormatter {
-  async format(
+  static contentType = 'text/csv';
+  format(
     data: Snapshot,
     options?: { customHeaders?: string[] },
-  ): Promise<IFormatterFormat> {
+  ): IFormatterFormat {
     const csvOptions = {
       fieldSeparator: ';',
       quoteStrings: '"',
@@ -34,7 +37,27 @@ export class CSVFormatter extends IFormatter {
         withFlattening(data),
         shouldReturnCsv,
       ),
-      contentType: 'text/csv',
+      contentType: CSVFormatter.contentType,
     };
+  }
+  /**
+   *
+   * @param inputStream
+   * @param output : can be the httpReponse itself
+   * @param highWatermark
+   */
+  formatAsync(inputStream: Readable, output: Writable, highWatermark?: number) {
+    const opts = {
+      delimiter: ';',
+      includeEmptyRows: false,
+      quote: '',
+    };
+    const transformOpts = {
+      highWatermark,
+      objectMode: true,
+    };
+
+    const asyncParser = new AsyncParser(opts, transformOpts);
+    asyncParser.fromInput(inputStream).toOutput(output);
   }
 }

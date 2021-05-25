@@ -37,4 +37,6 @@ export class CSVZippedFormatter extends IFormatter {
       contentType: 'application/zip',
     };
   }
+
+  formatAsync() {}
 }

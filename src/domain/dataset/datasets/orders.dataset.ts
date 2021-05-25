@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
 import { Snapshot } from '../models/snapshot.model';
-import * as StreamFromPromise from 'stream-from-promise';
 import { Readable } from 'stream';
 
 const decorator = {
@@ -31,12 +30,6 @@ export class OrdersDataset extends IDataset {
         networkId: true,
         taxFreeTotal: true,
         total: true,
-        /*user: {
-          select: {
-            firstname: true,
-            lastname: true,
-          },
-        },*/
       },
     });
   }
@@ -44,30 +37,42 @@ export class OrdersDataset extends IDataset {
   fetchAsStream(options: IDatasetFetchOptions<OrdersDatasetFilters>): Readable {
     this.checkSetup();
 
-    const _getDataFetcher = () => {
-      const args = {
-        where: this.where<OrdersDatasetFilters>(options?.filters),
-        take: options?.limit || IDataset.RECORDS_DEFAULT_LIMIT,
-        orderBy: options?.orderBy || undefined,
-        select: {
-          id: true,
-          code: true,
-          userId: true,
-          networkId: true,
-          taxFreeTotal: true,
-          total: true,
-          /*user: {
-          select: {
-            firstname: true,
-            lastname: true,
-          },
-        },*/
-        },
-      };
-      return this?.orm?.order?.findMany(args);
-    };
+    let cursorId = undefined;
+    const $this = this;
+    const CHUNKS_SIZE = this.take();
 
-    return StreamFromPromise.obj(_getDataFetcher());
+    return new Readable({
+      objectMode: true,
+      async read() {
+        try {
+          const args = {
+            ...$this.getQueryCommons(options),
+            take: CHUNKS_SIZE,
+            skip: cursorId ? 1 : 0,
+            cursor: cursorId ? { id: cursorId } : undefined,
+            select: {
+              id: true,
+              code: true,
+              userId: true,
+              networkId: true,
+              taxFreeTotal: true,
+              total: true,
+            },
+          };
+          const items = await $this.orm.order.findMany(args);
+
+          cursorId = items[items.length - 1].id;
+          for (const item of items) {
+            this.push(item);
+          }
+          if (items.length < CHUNKS_SIZE) {
+            this.push(null);
+          }
+        } catch (err) {
+          this.destroy(err);
+        }
+      },
+    });
   }
 }
 
