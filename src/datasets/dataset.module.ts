@@ -1,11 +1,12 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
-import { CommonModule } from '../../common/common.module';
+import { CommonModule } from '../common/common.module';
 import { DATASET_TAG } from './dataset.decorator';
 import * as datasets from './datasets/index';
+import { FilterModule } from './filter';
 
 @Module({
-  imports: [DiscoveryModule, CommonModule],
+  imports: [DiscoveryModule, CommonModule, FilterModule],
   providers: Object.values(datasets),
 })
 export class DatasetModule implements OnModuleInit {

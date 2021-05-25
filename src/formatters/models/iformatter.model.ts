@@ -1,5 +1,5 @@
 import { Readable, Writable } from 'node:stream';
-import { Snapshot } from '../../dataset/models/snapshot.model';
+import { Snapshot } from '../../datasets/models/snapshot.model';
 import { IFormatterFormat } from './iformatter-format.model';
 
 export interface IFormatterMetadata {

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { DomainModule } from '../../domain/domain.module';
-import { CommonModule } from '../../common/common.module';
+import { ExportModule } from '../export.module';
+import { CommonModule } from '../common/common.module';
 import { DatasetController, FormatsController } from './controllers';
 
 @Module({
-  imports: [CommonModule, DomainModule],
+  imports: [CommonModule, ExportModule],
   providers: [],
   controllers: [DatasetController, FormatsController],
 })

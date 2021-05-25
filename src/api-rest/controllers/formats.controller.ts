@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { FormatterService } from '../../../domain/formatter';
+import { FormatterService } from '../../formatters';
 import { ResourceMetadata } from '../dto';
 
 @Controller('formats')

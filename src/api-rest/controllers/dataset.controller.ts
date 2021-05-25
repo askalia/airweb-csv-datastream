@@ -23,8 +23,8 @@ import {
   DatasetService,
   IDatasetFetchOptions,
   IDataset,
-} from '../../../domain/dataset';
-import { FormatterService, IFormatter } from '../../../domain/formatter';
+} from '../../datasets';
+import { FormatterService, IFormatter } from '../../formatters';
 
 import {
   OrderbySupportedPipe,
@@ -130,8 +130,6 @@ export class DatasetController {
     };
 
     const _responseAsStream = async (formatter: IFormatter) => {
-      console.log('_responseAsStream');
-
       const dataStream = this._datasetService.getDatasetItemsAsStream(
         datasetId,
         {

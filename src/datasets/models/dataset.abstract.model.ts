@@ -1,5 +1,5 @@
-import { PrismaService } from '../../../common/db/prisma.service';
-import { Snapshot } from '../../../domain/dataset/models/snapshot.model';
+import { PrismaService } from '../../common/db/prisma.service';
+import { Snapshot } from './snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
 import { IDatasetFetchOptions } from './dataset-fetch-options.model';
 import { Readable } from 'stream';

@@ -5,7 +5,7 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { FormatterService } from '../../../domain/formatter';
+import { FormatterService } from '../../formatters';
 
 @Injectable()
 export class FormatSupportedPipe implements PipeTransform {

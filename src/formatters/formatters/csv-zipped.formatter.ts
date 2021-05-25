@@ -1,4 +1,4 @@
-import { Snapshot } from '../../../domain/dataset/models/snapshot.model';
+import { Snapshot } from '../../datasets/models/snapshot.model';
 import { IFormatter } from '../models/iformatter.model';
 import { IFormatterFormat } from '../models/iformatter-format.model';
 import * as zipper from 'lzutf8';

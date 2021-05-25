@@ -1,5 +1,5 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
-import { FilterService } from '../../../domain/filter/filter.service';
+import { FilterService } from '../../datasets/filter/filter.service';
 
 @Injectable()
 export class DatasetFiltersParserPipe implements PipeTransform {
