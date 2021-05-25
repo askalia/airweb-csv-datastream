@@ -3,9 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
 import { Snapshot } from '../models/snapshot.model';
-import * as StreamFromPromise from 'stream-from-promise';
 import { Readable } from 'stream';
-import { read } from 'node:fs';
 
 const decorator = {
   id: 'orders',
@@ -41,47 +39,37 @@ export class OrdersDataset extends IDataset {
 
     let cursorId = undefined;
     const $this = this;
-    const CHUNK_SIZE = 1000;    
-    let nbItemsTotal = 0;
+    const CHUNKS_SIZE = this.take();
+
     return new Readable({
       objectMode: true,
-      read: async function() {
-        try {          
-          let items = undefined;
-          const queryCommons = $this.getQueryCommons(options);
-          const totalItemsCount = await $this.orm.order.count(queryCommons);
-          do {
-            const args = {
-              ...queryCommons,
-              take: CHUNK_SIZE,
-              skip: cursorId !== undefined ? 1 : 0,
-              cursor: cursorId ? { id: cursorId } : undefined,            
-              select: {
-                id: true,
-                code: true,
-                userId: true,
-                networkId: true,
-                taxFreeTotal: true,
-                total: true,                
-              },
-            };
-            items = await $this.orm?.order?.findMany(args);           
-            if (items.length === 0) {
-              this.push(null);
-            } else {
-              cursorId = items[items.length - 1].id;
-              for (const item of items) {                
-                this.push(item);
-              }
-              
-            }                                  
-            nbItemsTotal += items.length;
-            
-          } while (nbItemsTotal === totalItemsCount)                                      
-        }
-        catch(error){
-          console.log('ERR : ', error)
-          this.destroy(error);
+      async read() {
+        try {
+          const args = {
+            ...$this.getQueryCommons(options),
+            take: CHUNKS_SIZE,
+            skip: cursorId ? 1 : 0,
+            cursor: cursorId ? { id: cursorId } : undefined,
+            select: {
+              id: true,
+              code: true,
+              userId: true,
+              networkId: true,
+              taxFreeTotal: true,
+              total: true,
+            },
+          };
+          const items = await $this.orm.order.findMany(args);
+
+          cursorId = items[items.length - 1].id;
+          for (const item of items) {
+            this.push(item);
+          }
+          if (items.length < CHUNKS_SIZE) {
+            this.push(null);
+          }
+        } catch (err) {
+          this.destroy(err);
         }
       },
     });

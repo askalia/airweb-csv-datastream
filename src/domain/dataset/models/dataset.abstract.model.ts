@@ -11,8 +11,9 @@ export abstract class IDataset {
   protected service: DatasetService;
   protected id: string;
 
-  static RECORDS_DEFAULT_LIMIT = +process.env.DATASET_RECORDS_DEFAULT_LIMIT;
-
+  static DEFAULT_RECORDS_CHUNKING = Number(
+    process.env.DATASET_DEFAULT_RECORDS_CHUNKING,
+  );
   constructor(id) {
     this.id = id;
   }
@@ -64,8 +65,8 @@ export abstract class IDataset {
     };
   }
 
-  protected take(howMany: number) {
-    return howMany || IDataset.RECORDS_DEFAULT_LIMIT;
+  protected take(howMany?: number) {
+    return howMany || IDataset.DEFAULT_RECORDS_CHUNKING;
   }
 
   private validateFilters<TDataset>(
