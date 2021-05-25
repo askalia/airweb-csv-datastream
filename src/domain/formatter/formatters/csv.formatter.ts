@@ -20,6 +20,7 @@ export class CSVFormatter extends IFormatter {
       delimiter: ';',
       includeEmptyRows: false,
       quote: '',
+      flatten: true,
     };
     return {
       formattedStream: (new CsvParser(

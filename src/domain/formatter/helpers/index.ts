@@ -1,1 +1,1 @@
-export * from "./with-flattening.helper"
+export * from './with-flattening.helper';
