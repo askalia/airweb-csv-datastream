@@ -23,6 +23,7 @@ export class CSVZippedFormatter extends IFormatter {
       delimiter: ';',
       includeEmptyRows: false,
       quote: '',
+      flatten: true,
     };
 
     return {
