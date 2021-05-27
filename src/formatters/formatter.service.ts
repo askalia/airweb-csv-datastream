@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException, Scope } from '@nestjs/common';
-import { IFormatter, IFormatterMetadata } from './models/iformatter.model';
-
-import { IDatasetMetadata } from '../datasets/models';
+import {
+  IDatasetMetadata,
+  IFormatter,
+  IFormatterMetadata,
+} from '../common/models';
 
 interface FormatterRegistryItem {
   metadata: IFormatterMetadata;

@@ -1,9 +1,9 @@
-import { IFormatter, IFormatterFormat, Snapshot } from '../../common/models';
 import { Injectable } from '@nestjs/common';
-import { FormatterProvider } from '../formatter.decorator';
 import { AsyncParser, Parser as CsvParser, Options } from 'json2csv';
 import { Readable, Writable } from 'stream';
 import JSON2CSVParser from 'json2csv/JSON2CSVParser';
+import { Snapshot, IFormatter, IFormatterFormat } from '../../common/models';
+import { FormatterProvider } from '../../formatters/formatter.decorator';
 
 @Injectable()
 @FormatterProvider({

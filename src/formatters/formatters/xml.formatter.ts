@@ -1,4 +1,4 @@
-import { IFormatter } from '../models/iformatter.model';
+import { IFormatter } from '../../common/models';
 import * as xmlParser from 'js2xmlparser';
 import { Injectable } from '@nestjs/common';
 import { FormatterProvider } from '../formatter.decorator';

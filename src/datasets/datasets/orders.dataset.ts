@@ -1,8 +1,7 @@
 import { Prisma } from '.prisma/client';
 import { Injectable } from '@nestjs/common';
-import { IDataset, IDatasetFetchOptions } from '../models';
 import { DatasetProvider } from '../dataset.decorator';
-import { Snapshot } from '../models/snapshot.model';
+import { Snapshot, IDataset, IDatasetFetchOptions } from '../../common/models';
 import { Readable } from 'stream';
 
 const decorator = {

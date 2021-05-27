@@ -3,7 +3,7 @@ import { Snapshot } from './snapshot.model';
 import { DatasetFilters } from './dataset-filters.model';
 import { IDatasetFetchOptions } from './dataset-fetch-options.model';
 import { Readable } from 'stream';
-import { DatasetService } from '../dataset.service';
+import { DatasetService } from '../../datasets';
 
 export abstract class IDataset {
   filters: DatasetFilters<unknown>;

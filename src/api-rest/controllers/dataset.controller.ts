@@ -24,7 +24,8 @@ import {
   IDatasetFetchOptions,
   IDataset,
 } from '../../datasets';
-import { FormatterService, IFormatter } from '../../formatters';
+import { FormatterService } from '../../formatters';
+import { IFormatter } from '../../common/models';
 
 import {
   OrderbySupportedPipe,
@@ -33,7 +34,7 @@ import {
   DatasetFiltersParserPipe,
   OptionableParseTypePipe,
 } from '../pipes';
-import { ResourceMetadata } from '../dto';
+import { ResourceMetadata } from '../../common/dto';
 
 @Controller('datasets')
 export class DatasetController {

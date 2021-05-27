@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { filterOperatorsMap } from './filter-operators.model';
-import { Filters } from './filter.model';
+import { Filters } from '../../common/models/filter.model';
 
 @Injectable()
 export class FilterService {

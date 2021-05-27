@@ -1,11 +1,8 @@
-import { Snapshot } from '../../datasets/models/snapshot.model';
-import { IFormatter } from '../models/iformatter.model';
-import { IFormatterFormat } from '../models/iformatter-format.model';
+import { Snapshot, IFormatter, IFormatterFormat } from '../../common/models';
 import * as zipper from 'lzutf8';
 import { Injectable } from '@nestjs/common';
 import { Parser as CsvParser, Options } from 'json2csv';
 import JSON2CSVParser from 'json2csv/JSON2CSVParser';
-
 import { FormatterProvider } from '../formatter.decorator';
 
 @Injectable()
