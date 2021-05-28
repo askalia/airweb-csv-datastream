@@ -8,7 +8,7 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { setupSwagger } from './swagger';
+import { setupSwagger } from './api-rest/swagger';
 
 import { AppModule } from './app.module';
 

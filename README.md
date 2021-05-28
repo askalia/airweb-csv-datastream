@@ -1,73 +1,244 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Export API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## About
+The purpose of this API consists to query a `dataset`  + some filtering, and output it to a HTTP response into a given `format`.
 
-## Description
+### Stack
+- node 14.4
+- yarn 1.22
+- NestJS 7.6.15
+- Prisma 2.21
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+...but all this stuff is described in Dockerfile
 
-## Installation
+## Models 
 
-```bash
-$ npm install
-```
+Main models to figure out :
 
-## Running the app
+`Dataset`
+A Dataset fetch Orders, or Validation, or any via a ORM, with a prebuild Query.
+You are free to add as many Dataset as you need. Things are designed this way.
+Some will fit most customers' need, other will be more specific. 
+So we can tell that many Dataset can be expected to be added over time
 
-```bash
-# development
-$ npm run start
+`Formatter`
+A Formatter is a one-class function that takes a Dataset as input and outputs it to a given specific format, be it CSV, XML, CSV Zipped, ...
+As well as Dataset, you are free to add as many Formatters as you need. Things are designed this way.
+But few new formatters might be added over time.
 
-# watch mode
-$ npm run start:dev
+ `IDataset`
+Interface that specifies how to implement *fetch()* method
 
-# production mode
-$ npm run start:prod
-```
+`IFormatter`
+Interface that specifies how to implement *format()* method
 
-## Test
+`Snapshot`
+represent a rather abstract collection of objects: records, aggregates, ...
 
-```bash
-# unit tests
-$ npm run test
 
-# e2e tests
-$ npm run test:e2e
+## Architecture
 
-# test coverage
-$ npm run test:cov
-```
+The export API est is organized as follows : 
 
-## Support
+`src/api-rest`
+- controllers, 
+- pipes,
+- swagger config (openAPI)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+`src/common`
+- db config and ORM service
+- embeds core models
 
-## Stay in touch
+`src/datasets`
+stuff that specify and run datasets
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+`src/datasets/datasets`
+contains all dataset files available for querying
 
-## License
+`src/formatters`
+stuff that specify and run formatters
 
-Nest is [MIT licensed](LICENSE).
+`/src/formatters/formatters`
+contains all formatter files available to output a dataset payload
+
+
+## How to create a new Dataset
+
+A Dataset is technically a NestJS Service that respect a given interface and hold some metadata for being identified
+You can inspire from a existing Dataset class to duplicate its skeleton
+
+Herebelow you have 4 mandatory steps to follow :
+1. auto-generate a NestJS sevice class
+2. identity the service with a Decorator
+3. implement the fetch() method
+4. Add the service to its folder's index
+
+#### Schematic
+In a future version, we can plan to write a schematic that help create a new dataset with just a single NestJS CLI command, instead of 4 manual steps.
+
+### 1. Auto generate a NestJS service class
+
+    $ nest g service datasets/datasets/mystuff --flat   
+Add a "**.dataset**" suffix to the generated .ts file, so that the file has a standardized naming : 
+
+    mystuff.dataset.ts
+
+### 2. Make the service identifiable
+NestJS will mount the service inside a discoverable Service Registry.
+So it must supply metadata so as to be identifiable and retrieved.
+
+    # src/datasets/datasets/somestuff.dataset.ts
+    
+    const decorator = {
+        id: "my-stuff",
+        description: "retrieves some kind of stuff"
+    };
+
+    @Injectable()
+    **@DatasetDecorator(decorator)**
+	export class MyDataset extends IDataset {
+		constructor(){
+			super(decorator.id);
+		}
+	}
+
+You can also add a optional prop `filterables` to the decorator : it will whitelist only the subset of props (fields) that are allowed to have filters be applied on .
+If not set, all props are whitelisted.
+
+### 3. Implement the fetch() method 
+Let be guided with the abstract class `IDataset` from common
+   
+	# src/datasets/datasets/somestuff.dataset.ts
+	
+	@Injectable()
+    @DatasetDecorator(decorator)
+    export class MyDataset extends IDataset {
+		async  **fetch**(
+			options:  IDatasetFetchOptions<OrdersDatasetFilters>,
+		):  Promise<Snapshot> {
+			...
+		}
+	}
+#### 3.1. Implement the fetchAsStream() method
+Not mandatory right now. Can be done later.
+In case of large volume of data, you cannot store the data as a big Buffer into a simple var.
+That would overflow the storage limit of this var as well as crashing the server.
+It must be handled as a *stream*.
+To do so you must split the bulk : paginate the result with Prisma, push the chunks as they arrive into a Readable stream. Then the stream should be passed to formatter.formatAsync()...
+...well, you better watch the example of  `orders.dataset.ts`
+
+### 4. Add the service to its folder's index
+
+#### with IDE extension :
+Either you have [generate-file](https://marketplace.visualstudio.com/items?itemName=kingdaro.generate-index) VS-code extension :
+from the service file opened : Ctrl +Shift + P > "Generate / update index file"
+that will add the current file to the `index.ts` file in the same folder.
+Then the NestJS Discovery Service loads all files from the index.ts
+(/datasets/datasets/index.ts)
+
+#### or manually :    
+Or add manually the file path to the index.ts file : 
+
+    # src/datasets/datasets/index.ts
+    ...
+    export * from "./my-stuff.dataset";
+
+## How to create a new Formatter
+
+As well as Dataset, a Formatter is technically a NestJS Service that respect a given interface and hold some metadata for being identified
+You can inspire from a existing Dataset class to duplicate its skeleton
+
+Herebelow you have 4 mandatory steps to follow :
+1. auto-generate a NestJS sevice class
+2. identity the service with a Decorator
+3. implement the format() method
+4. Add the service to its folder's index
+
+#### Schematic
+In a future version, you can plan to write a schematic that help create a new formatter with just a single NestJS CLI command, instead of 4 manual steps.
+
+### 1. Auto generate a NestJS service class
+
+    $ nest g service formatters/formatters/anyformat --flat   
+Add a "**.formatter**" suffix to the generated .ts file, so that the file has a standardized naming : 
+
+    anyformat.formatter.ts
+
+### 2. Make the service identifiable
+NestJS will mount the service inside a discoverable Service Registry.
+So it must supply metadata so as to be identifiable and retrieved.
+
+    # src/datasets/datasets/somestuff.dataset.ts
+    
+    const decorator = {
+        id: "anyformat",
+        description: "a simple XYZ formatter"
+    };
+
+    @Injectable()
+    **@FormatterDecorator(decorator)**
+	export class AnyFormatter extends IFormatter {
+		constructor(){
+			super(decorator.id);
+		}
+	}
+
+Inside this service you can leverage any NPM package you need to handle the formatting.
+Keep in mind to install TypeScript defs that be brought with it  (if any).
+
+### 3. Implement the format() method 
+Let be guided with the abstract class `IDataset` from common
+   
+	# src/datasets/datasets/somestuff.dataset.ts
+	
+	@Injectable()
+    @DatasetDecorator(decorator)
+    export class MyDataset extends IDataset {
+		format(data:  Snapshot, options?:  Options<string>):  IFormatterFormat {
+			...
+		}
+	}
+#### 3.1. Implement de formatAsync() method
+Not mandatory right now. Can be done later.
+This is the *stream* adapted version of the `format()` method for case of large volume data passed.
+The IFormatter interface asks for 2 inputs : a Readable as source, a Writable as output.
+Usually :
+- the `Readable` source is the data payload from Prisma DB embedded into a Stream
+- the `Writable` output is the Express Response
+
+
+### 4. Add the service to its folder's index
+
+#### with IDE extension :
+Either you have [generate-file](https://marketplace.visualstudio.com/items?itemName=kingdaro.generate-index) VS-code extension :
+from the service file opened : Ctrl +Shift + P > "Generate / update index file"
+that will add the current file to the `index.ts` file in the same folder.
+Then the NestJS Discovery Service loads all files from the index.ts
+(/datasets/datasets/index.ts)
+
+#### or manually :    
+Or add manually the file path to the index.ts file : 
+
+    # src/datasets/datasets/index.ts
+    ...
+    export * from "./my-stuff.dataset";
+
+
+
+## Check that Rest API is up-to-date
+
+### Run the server :
+    $ yarn start:dev
+
+### Go to API endpoint that lists all datasets up :
+[http://localhost:3000/datasets](http://localhost:3000/datasets)
+`my-stuff` should be available as part of the collection
+
+Same goes for a new formatter : 
+[http://localhost:3000/formats](http://localhost:3000/formats)
+
+## Swagger (openAPI) documentation of Rest API
+
+### API Documentation is available here : 
+[http://localhost:3000/api-doc](http://localhost:3000/api-doc)
