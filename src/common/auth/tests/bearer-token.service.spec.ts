@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BearerTokenService } from '../bearer-token.service';
+import { BearerTokenService } from '../auth-api.service';
 
 describe('BearertokenService', () => {
   let service: BearerTokenService;

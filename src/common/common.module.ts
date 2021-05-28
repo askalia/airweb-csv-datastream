@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from './db/prisma.service';
-import { BearerTokenService } from './auth/bearer-token/bearer-token.service';
+import { AuthApiService } from './auth/auth-api.service';
 
-const services = [PrismaService, BearerTokenService];
+const services = [PrismaService, AuthApiService];
 
 @Module({
   providers: services,

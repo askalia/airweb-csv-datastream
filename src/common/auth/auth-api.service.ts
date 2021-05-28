@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import fetch from 'node-fetch';
-import { User } from '../models/user.interface';
+import { User } from './models/user.interface';
 
 @Injectable()
-export class BearerTokenService {
+export class AuthApiService {
+  constructor() {
+    this._checkSetup();
+  }
   async verifyBearerToken(bearer: string): Promise<boolean> {
     try {
       return this.callAuthAPI({
@@ -34,11 +37,19 @@ export class BearerTokenService {
     headers: Record<string, string>;
     body?: Record<string, any>;
   }) {
+    this._checkSetup();
     return (
       await fetch(`${process.env.AUTH_API_URL}${options.endpoint}`, {
+        method: 'post',
         body: JSON.stringify(options.body),
         ...options.headers,
       })
     ).json();
+  }
+
+  private _checkSetup() {
+    if (!process.env.AUTH_API_URL || process.env.AUTH_API_URL.trim() === '') {
+      throw new Error('Auth API URL is missing. Check platform setup');
+    }
   }
 }
