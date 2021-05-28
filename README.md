@@ -1,73 +1,104 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Export API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The purpose of this API consists to query a `dataset`  + some filtering, and output it to a HTTP response in a given `format`.
+A **Dataset** fetch Orders, or Validation, or any via a ORM, with a prebuild Query.
+We can add or delete as many Dataset as we need.
+Some will fit most customers' need, other will be more specific. 
+So we can tell that many Dataset can be expected to be added over time
 
-## Description
+A Formatter is a one-class function that takes a Dataset as input and outputs it to a given specific format, be it CSV, XML, CSV Zipped, ...
+As well as Dataset, we can add as many Formatters as we need.
+But few new formatters might be added over time.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The export API est is organized as follows : 
 
-## Installation
+- `/src/api-rest` contains :
+all about controllers, pipes, swagger config (openAPI)
 
-```bash
-$ npm install
-```
+- `/src/common` contains :
+db config and ORM service
+embeds core models
 
-## Running the app
+- `/src/datasets/datasets` contains:
+every single datasets available for query
 
-```bash
-# development
-$ npm run start
+- `/src/formatters/formatters`
+every formatter available to output a given dataset
 
-# watch mode
-$ npm run start:dev
 
-# production mode
-$ npm run start:prod
-```
+## How to create a new Dataset
 
-## Test
+A Dataset is technically a NestJS Service that respect a given interface and hold some metadata for being identified
+You can inspire from a existing Dataset class to duplicate its skeleton
 
-```bash
-# unit tests
-$ npm run test
+Four mandatory steps :
+1. auto-generate a NestJS sevice class
+2. identity the service with a Decorator
+3. implement the fetch() method
+4. Add the service to the index
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
-```
 
-## Support
+### 1. Auto generate a NestJS service class
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    $ nest g service datasets/datasets/my-dataset    
+Add a ".dataset" suffix to the generated .ts file.
 
-## Stay in touch
+### 2. Make the service identifiable
+NestJS will mount the service inside a discoverable Service Registry.
+So it must be named so as to be retrieved.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    const decorator = {
+        id: "myDecorator",
+        description: "retrieves some kind of data"
+    };
 
-## License
+    @Injectable()
+    @DatasetDecorator(decorator)
+	export class MyDataset extends IDataset {
+		consructor(){
+			super(decorator.id);
+		}
+	}
 
-Nest is [MIT licensed](LICENSE).
+### 3. Implement the fetch() method 
+Let be guided with the abstract class `IDataset` from common
+   
+	@Injectable()
+    @DatasetDecorator(decorator)
+    export class MyDataset extends IDataset {
+		async  fetch(
+			options:  IDatasetFetchOptions<OrdersDatasetFilters>,
+		):  Promise<Snapshot> {
+			...
+		}
+	}
+
+### 4. Add the service to the index
+
+#### IDE extension way :
+Either you have [generate-file](https://marketplace.visualstudio.com/items?itemName=kingdaro.generate-index) VS-code extension :
+from the service file opened : Ctrl +Shift + P > "Generate / update index file"
+that will add the current file to the `index.ts` file in the same folder.
+Then the NestJS Discovery Service loads all files from the index.ts
+(/datasets/datasets/index.ts)
+
+#### Manual way :    
+Or add manually the file path to the index.ts file : 
+
+    // /datasets/datasets/index.ts
+    ...
+    export * from "./my.dataset";
+
+
+### Check with Swagger that Rest API is up-to-date
+
+#### Run the server :
+
+    $ yarn start:dev
+
+#### Go to Swagger doc :
+[http://localhost:3000/datasets](http://localhost:3000/datasets)
+
+`MyDataset` should be available as part of the collection of datasets
