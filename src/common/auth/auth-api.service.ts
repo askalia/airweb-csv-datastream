@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import fetch from 'node-fetch';
+import { HttpService, Injectable } from '@nestjs/common';
+import { AxiosRequestConfig, Method as HttpMethod } from 'axios';
 import { User } from './models/user.interface';
 
 @Injectable()
 export class AuthApiService {
-  constructor() {
+  constructor(private readonly httpClient: HttpService) {
     this._checkSetup();
   }
   async verifyBearerToken(bearer: string): Promise<boolean> {
     try {
-      return this.callAuthAPI({
+      return this.callAuthAPI<boolean>({
         endpoint: '/authorize',
         body: { bearer },
         headers: { 'Content-Type': 'application/json' },
@@ -20,7 +20,7 @@ export class AuthApiService {
   }
   async getUserFromBearerToken(bearer: string): Promise<User> {
     try {
-      return this.callAuthAPI({
+      return this.callAuthAPI<User>({
         endpoint: '/user',
         headers: {
           'Content-Type': 'application/json',
@@ -32,19 +32,22 @@ export class AuthApiService {
     }
   }
 
-  async callAuthAPI(options: {
+  async callAuthAPI<T>(options: {
     endpoint: string;
-    headers: Record<string, string>;
-    body?: Record<string, any>;
-  }) {
+    headers: AxiosRequestConfig['headers'];
+    body?: AxiosRequestConfig['data'];
+    method?: HttpMethod;
+  }): Promise<T> {
     this._checkSetup();
-    return (
-      await fetch(`${process.env.AUTH_API_URL}${options.endpoint}`, {
-        method: 'post',
-        body: JSON.stringify(options.body),
-        ...options.headers,
+    return this.httpClient
+      .request<T>({
+        method: options?.method || 'POST',
+        url: `${process.env.AUTH_API_URL}${options.endpoint}`,
+        data: options?.body ? JSON.stringify(options.body) : undefined,
+        headers: options?.headers,
       })
-    ).json();
+      .toPromise()
+      .then(({ data }) => data);
   }
 
   private _checkSetup() {
