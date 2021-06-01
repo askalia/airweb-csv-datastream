@@ -9,6 +9,9 @@ export class AuthApiService {
   }
   async verifyBearerToken(bearer: string): Promise<boolean> {
     try {
+      if (process.env.ENABLE_AUTH_API === 'false') {
+        return true;
+      }
       return this.callAuthAPI<boolean>({
         endpoint: '/authorize',
         body: { bearer },

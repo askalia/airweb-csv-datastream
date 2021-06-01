@@ -107,6 +107,7 @@ export class DatasetController {
     @Response()
     httpResponse: HttpResponse,
   ) {
+    console.log('YEA');
     const _responseAsBuffer = async (formatter: IFormatter) => {
       try {
         const dataStream = await this._datasetService.getDatasetItems(
