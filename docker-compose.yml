@@ -17,6 +17,7 @@ services:
       - DATASET_DEFAULT_CHUNKING=${DATASET_DEFAULT_CHUNKING}
       - SWAGGER_PATH=${SWAGGER_PATH}
       - AUTH_API_URL=${AUTH_API_URL}
+      - ENABLE_AUTH_API=${ENABLE_AUTH_API}
 
     labels:
       - 'traefik.enable=true'
