@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    command: yarn start:prod
+    volumes:
+      - './src:/var/www/src'
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - HOST_URL=${HOST_URL}
+      - HTTP_PORT=${HTTP_PORT}
+      - DATASET_DEFAULT_CHUNKING=${DATASET_DEFAULT_CHUNKING}
+      - SWAGGER_PATH=${SWAGGER_PATH}
+      - AUTH_API_URL=${AUTH_API_URL}
+      - ENABLE_AUTH_API=${ENABLE_AUTH_API}
+
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.frontend.rule=Host:app.test.localhost.tv'

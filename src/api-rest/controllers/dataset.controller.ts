@@ -147,7 +147,7 @@ export class DatasetController {
       formatter.formatAsync(
         dataStream,
         httpResponse,
-        IDataset.DEFAULT_RECORDS_CHUNKING,
+        Number(process.env.DATASET_DEFAULT_CHUNKING),
       );
     };
 
@@ -186,6 +186,7 @@ export class DatasetController {
     name: 'filters',
     type: 'json',
     required: false,
+    description: 'semi-colon (;) separated filters',
   })
   @ApiQuery({
     name: 'orderby',
