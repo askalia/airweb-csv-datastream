@@ -4,7 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 export const setupSwagger = (app: NestExpressApplication) => {
   const config = new DocumentBuilder()
     .setTitle('Export API docs')
-    .setDescription('Airweb Export Rest API documentation')
+    .setDescription('Airweb Export API documentation')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

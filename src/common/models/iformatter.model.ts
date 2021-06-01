@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'node:stream';
+import { Readable, Writable } from 'stream';
 import { Snapshot } from '../../common/models/snapshot.model';
 import { IFormatterFormat } from './iformatter-format.model';
 

@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+.env
+.env.dist
+docker-compose.yml
+Dockerfile
+export-api.postman.json
+.git
+.gitignore
+yarn-error.log
