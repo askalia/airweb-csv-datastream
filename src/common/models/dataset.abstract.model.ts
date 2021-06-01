@@ -66,7 +66,7 @@ export abstract class IDataset {
   }
 
   protected take(howMany?: number) {
-    return howMany || IDataset.DEFAULT_RECORDS_CHUNKING;
+    return howMany || Number(process.env.DATASET_DEFAULT_RECORDS_CHUNKING);
   }
 
   private validateFilters<TDataset>(

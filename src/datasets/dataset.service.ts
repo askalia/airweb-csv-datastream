@@ -6,7 +6,7 @@ import {
   IDatasetMetadata,
   IDatasetMetadataSwagger,
 } from '../common/models';
-import { Readable } from 'node:stream';
+import { Readable } from 'stream';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
