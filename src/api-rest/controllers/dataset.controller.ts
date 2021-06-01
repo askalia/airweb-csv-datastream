@@ -7,6 +7,7 @@ import {
   Query,
   ParseBoolPipe,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { Response as HttpResponse } from 'express';
 import {
@@ -35,6 +36,7 @@ import {
   OptionableParseTypePipe,
 } from '../pipes';
 import { ResourceMetadata } from '../../common/dto';
+import { DatasetExportGuard } from '../guards/dataset-export.guard';
 
 @Controller('datasets')
 export class DatasetController {
@@ -88,6 +90,7 @@ export class DatasetController {
     description: 'reply with data as a stream (default is false)',
     required: false,
   })
+  @UseGuards(DatasetExportGuard)
   async getDatasetExported(
     @Param('datasetId')
     datasetId: IDatasetMetadata['id'],
@@ -104,6 +107,7 @@ export class DatasetController {
     @Response()
     httpResponse: HttpResponse,
   ) {
+    console.log('YEA');
     const _responseAsBuffer = async (formatter: IFormatter) => {
       try {
         const dataStream = await this._datasetService.getDatasetItems(
