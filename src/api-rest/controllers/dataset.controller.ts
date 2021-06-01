@@ -143,7 +143,7 @@ export class DatasetController {
       formatter.formatAsync(
         dataStream,
         httpResponse,
-        Number(process.env.DATASET_DEFAULT_RECORDS_CHUNKING),
+        Number(process.env.DATASET_DEFAULT_CHUNKING),
       );
     };
 

@@ -12,4 +12,4 @@ RUN rm -rf tmp/
 RUN yarn install --production --ignore-scripts --prefer-offline --force --non-interactive
 RUN npx prisma generate
 EXPOSE 3000
-CMD yarn start:dev
+#CMD yarn start:dev

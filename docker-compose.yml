@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-    command: yarn start:dev
+    command: yarn start:prod
     volumes:
       - './src:/var/www/src'
     ports:
@@ -14,7 +14,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - HOST_URL=${HOST_URL}
       - HTTP_PORT=${HTTP_PORT}
-      - DATASET_DEFAULT_RECORDS_CHUNKING=${DATASET_DEFAULT_RECORDS_CHUNKING}
+      - DATASET_DEFAULT_CHUNKING=${DATASET_DEFAULT_CHUNKING}
       - SWAGGER_PATH=${SWAGGER_PATH}
       - AUTH_API_URL=${AUTH_API_URL}
 
