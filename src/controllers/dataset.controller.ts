@@ -21,12 +21,11 @@ import {
 
 import {
   IDatasetMetadata,
-  DatasetService,
   IDatasetFetchOptions,
-  IDataset,
-} from '../../datasets';
-import { FormatterService } from '../../formatters';
-import { IFormatter } from '../../common/models';
+  IFormatter,
+} from '../modules/common/models';
+import { DatasetService } from '../modules/datasets';
+import { FormatterService } from '../modules/formatters';
 
 import {
   OrderbySupportedPipe,
@@ -35,7 +34,7 @@ import {
   DatasetFiltersParserPipe,
   OptionableParseTypePipe,
 } from '../pipes';
-import { ResourceMetadata } from '../../common/dto';
+import { ResourceMetadata } from '../modules/common/dto';
 import { DatasetExportGuard } from '../guards/dataset-export.guard';
 
 @Controller('datasets')
@@ -107,7 +106,6 @@ export class DatasetController {
     @Response()
     httpResponse: HttpResponse,
   ) {
-    console.log('YEA');
     const _responseAsBuffer = async (formatter: IFormatter) => {
       try {
         const dataStream = await this._datasetService.getDatasetItems(

@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ExtractJwt } from 'passport-jwt';
-import { AuthApiService } from 'src/common/auth/auth-api.service';
+import { AuthApiService } from 'src/modules/common/auth/auth-api.service';
 
 @Injectable()
 export class DatasetExportGuard implements CanActivate {

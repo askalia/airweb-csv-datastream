@@ -11,7 +11,13 @@ export class FilterService {
       }
       const pattern = new RegExp(Object.keys(filterOperatorsMap).join('|'));
       const [field, value] = block.split(pattern);
+
       const [operator] = block.match(pattern);
+      console.log({
+        field,
+        value,
+        operator,
+      });
 
       return {
         [field]: {
@@ -21,7 +27,7 @@ export class FilterService {
       };
     };
 
-    const filtersBlocks = rawFilters.split(';');
+    const filtersBlocks = rawFilters.split(/[;,]+/);
     let filters: Filters = {};
     for (const block of filtersBlocks) {
       filters = {
@@ -29,7 +35,6 @@ export class FilterService {
         ..._extractParts(block),
       };
     }
-
     return filters;
   }
 
@@ -40,12 +45,9 @@ export class FilterService {
           filter?.value?.toString(),
         ),
       };
+
       return clauses;
     }, {});
-  }
-
-  public getDirections(){
-    
   }
 
   private _parsedValue(rawValue: string | number): string | number {

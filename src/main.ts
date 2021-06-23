@@ -1,16 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-/*import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-*/
 import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { setupSwagger } from './api-rest/swagger';
 
 import { AppModule } from './app.module';
+import { SwaggerService } from './services/swagger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -18,7 +13,10 @@ async function bootstrap() {
     new ExpressAdapter(),
   );
 
-  setupSwagger(app);
+  const swagger = app.get(SwaggerService);
+
+  swagger.init(app);
+  app.use(swagger.assetsMiddleware);
 
   await app.listen(process.env.HTTP_PORT, '0.0.0.0');
 }

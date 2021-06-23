@@ -11,10 +11,10 @@ export const filterOperatorsMap: Record<
   FilterOperatorSymbol,
   FilterOperatorLabel
 > = {
-  '=': 'equals',
-  '<': 'lt',
   '<=': 'lte',
-  '>': 'gt',
   '>=': 'gte',
   '!=': 'not',
+  '=': 'equals',
+  '<': 'lt',
+  '>': 'gt',
 };
