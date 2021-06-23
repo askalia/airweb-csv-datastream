@@ -1,5 +1,5 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
-import { FilterService } from '../../datasets/filter/filter.service';
+import { FilterService } from '../modules/datasets/filter/filter.service';
 
 @Injectable()
 export class DatasetFiltersParserPipe implements PipeTransform {
@@ -12,6 +12,7 @@ export class DatasetFiltersParserPipe implements PipeTransform {
       return undefined;
     }
     const parsedAsFilters = this.filterService.parseFilters(stringMap);
+    console.log('where : ', this.filterService.toWhereClause(parsedAsFilters));
     return this.filterService.toWhereClause(parsedAsFilters);
   }
 }

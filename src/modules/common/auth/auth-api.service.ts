@@ -55,7 +55,7 @@ export class AuthApiService {
 
   private _checkSetup() {
     if (!process.env.AUTH_API_URL || process.env.AUTH_API_URL.trim() === '') {
-      throw new Error('Auth API URL is missing. Check platform setup');
+      //throw new Error('Auth API URL is missing. Check platform setup');
     }
   }
 }

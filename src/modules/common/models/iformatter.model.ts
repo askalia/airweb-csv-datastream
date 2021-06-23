@@ -1,5 +1,5 @@
 import { Readable, Writable } from 'stream';
-import { Snapshot } from '../../common/models/snapshot.model';
+import { Snapshot } from './snapshot.model';
 import { IFormatterFormat } from './iformatter-format.model';
 
 export interface IFormatterMetadata {

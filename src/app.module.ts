@@ -1,8 +1,22 @@
 import { Module } from '@nestjs/common';
-import { ExportModule } from './export.module';
-import { ApiRestModule } from './api-rest/api-rest.module';
+
+import { DatasetController, FormatsController } from './controllers';
+
+import { CommonModule } from './modules/common';
+import { FormatterModule, FormatterService } from './modules/formatters';
+import { DatasetModule, DatasetService } from './modules/datasets';
+import { FilterService } from './modules/datasets/filter';
+import { SwaggerService, PackageService } from './services';
 
 @Module({
-  imports: [ExportModule, ApiRestModule],
+  providers: [
+    DatasetService,
+    FormatterService,
+    FilterService,
+    SwaggerService,
+    PackageService,
+  ],
+  imports: [CommonModule, FormatterModule, DatasetModule],
+  controllers: [DatasetController, FormatsController],
 })
 export class AppModule {}

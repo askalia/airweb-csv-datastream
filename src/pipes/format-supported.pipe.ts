@@ -1,11 +1,10 @@
 import {
   ArgumentMetadata,
   BadRequestException,
-  HttpException,
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { FormatterService } from '../../formatters';
+import { FormatterService } from '../modules/formatters';
 
 @Injectable()
 export class FormatSupportedPipe implements PipeTransform {

@@ -4,7 +4,7 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { OrderBy, OrderByDirection } from '../../common/models';
+import { OrderBy, OrderByDirection } from '../modules/common/models';
 
 @Injectable()
 export class OrderbySupportedPipe implements PipeTransform {
