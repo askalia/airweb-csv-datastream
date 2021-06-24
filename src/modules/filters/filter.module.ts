@@ -7,7 +7,6 @@ import * as advancedFilters from './filters/index';
 
 @Module({
   imports: [DiscoveryModule],
-  //providers: [FilterService],
   providers: Object.values(advancedFilters),
 })
 export class FilterModule {
