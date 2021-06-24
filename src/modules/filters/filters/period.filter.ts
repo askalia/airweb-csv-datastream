@@ -10,7 +10,7 @@ import { FilterProvider } from '../filter.decorator';
 })
 export class PeriodFilter implements IAdvancedFilter {
   getFilterAsWhere(rawFilterValue: string) {
-    const [dateFrom, dateTo] = rawFilterValue.split(':');
+    const [dateFrom, dateTo] = rawFilterValue.split('|');
     return [
       {
         transferredAt: {
