@@ -50,7 +50,6 @@ export class SwaggerService implements OnApplicationBootstrap {
   }
 
   getDocument(): OpenAPIObject {
-    console.log('document : ', document);
     if (!this.document)
       throw new Error(
         'You have to inject application context before generating documentation',

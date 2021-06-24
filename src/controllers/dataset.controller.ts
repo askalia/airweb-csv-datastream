@@ -58,29 +58,31 @@ export class DatasetController {
     name: 'datasetId',
     type: 'string',
     required: true,
+    example: 'orders',
   })
   @ApiQuery({
     name: 'format',
     type: 'string',
     required: true,
+    example: 'csv',
   })
   @ApiQuery({
     name: 'filters',
     type: 'string',
     required: false,
+    example: 'total>=20;code>"1000"',
   })
   @ApiQuery({
     name: 'orderby',
     type: 'string',
     description: '',
-    example: 'name:asc',
+    example: 'status:asc',
     required: false,
   })
   @ApiQuery({
     name: 'limit',
     type: 'number',
     description: '',
-    example: 'name:asc',
     required: false,
   })
   @ApiQuery({
@@ -88,6 +90,7 @@ export class DatasetController {
     type: 'boolean',
     description: 'reply with data as a stream (default is false)',
     required: false,
+    example: 'false',
   })
   @UseGuards(DatasetExportGuard)
   async getDatasetExported(
@@ -142,11 +145,11 @@ export class DatasetController {
         },
       );
 
-      formatter.formatAsync(
-        dataStream,
-        httpResponse,
-        Number(process.env.DATASET_DEFAULT_CHUNKING),
-      );
+      formatter.formatAsync({
+        inputStream: dataStream,
+        output: httpResponse,
+        chunkSize: Number(process.env.DATASET_DEFAULT_CHUNKING),
+      });
     };
 
     const dataFormatter = this._formatterService.getFormatterById(

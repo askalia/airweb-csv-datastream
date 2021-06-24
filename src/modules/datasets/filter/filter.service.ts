@@ -11,13 +11,7 @@ export class FilterService {
       }
       const pattern = new RegExp(Object.keys(filterOperatorsMap).join('|'));
       const [field, value] = block.split(pattern);
-
       const [operator] = block.match(pattern);
-      console.log({
-        field,
-        value,
-        operator,
-      });
 
       return {
         [field]: {

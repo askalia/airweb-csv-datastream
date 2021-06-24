@@ -12,7 +12,6 @@ export class DatasetFiltersParserPipe implements PipeTransform {
       return undefined;
     }
     const parsedAsFilters = this.filterService.parseFilters(stringMap);
-    console.log('where : ', this.filterService.toWhereClause(parsedAsFilters));
     return this.filterService.toWhereClause(parsedAsFilters);
   }
 }

@@ -2,6 +2,7 @@ import { IFormatter } from '../../common/models';
 import * as xmlParser from 'js2xmlparser';
 import { Injectable } from '@nestjs/common';
 import { FormatterProvider } from '../formatter.decorator';
+import { Readable, Writable } from 'node:stream';
 
 const DEFAULT_NODE_NAME = 'dataset';
 
@@ -25,5 +26,19 @@ export class XMLFormatter extends IFormatter {
     };
   }
 
-  formatAsync() {}
+  formatAsync({
+    inputStream,
+    output,
+    chunkSize,
+    options,
+  }: {
+    inputStream: Readable;
+    output: Writable;
+    chunkSize?: number;
+    options?: {
+      dataTypeName: string;
+    };
+  }) {
+    throw new Error('XMLFormatter.formatASync() is not yet implemented');
+  }
 }
