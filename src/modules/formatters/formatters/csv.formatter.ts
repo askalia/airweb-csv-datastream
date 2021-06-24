@@ -33,12 +33,17 @@ export class CSVFormatter extends IFormatter {
    * @param output : can be the httpReponse itself
    * @param highWatermark
    */
-  formatAsync(
-    inputStream: Readable,
-    output: Writable,
-    highWatermark?: number,
-    options?: Options<unknown>,
-  ) {
+  formatAsync({
+    inputStream,
+    output,
+    chunkSize,
+    options,
+  }: {
+    inputStream: Readable;
+    output: Writable;
+    chunkSize?: number;
+    options?: Options<unknown>;
+  }) {
     const opts = {
       ...options,
       delimiter: ';',
@@ -46,7 +51,7 @@ export class CSVFormatter extends IFormatter {
       quote: '',
     };
     const transformOpts = {
-      highWatermark,
+      highWatermark: chunkSize,
       objectMode: true,
     };
 

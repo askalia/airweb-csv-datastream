@@ -1,5 +1,5 @@
 import { Readable, Writable } from 'stream';
-import { Snapshot } from './snapshot.model';
+import { Snapshot } from '../../common/models/snapshot.model';
 import { IFormatterFormat } from './iformatter-format.model';
 
 export interface IFormatterMetadata {
@@ -14,9 +14,15 @@ export abstract class IFormatter {
     options?: unknown,
   ): IFormatterFormat | Promise<IFormatterFormat>;
 
-  abstract formatAsync(
-    dataStream: Readable,
-    httpResponse: Writable,
-    chunkingSize: number,
-  ): void;
+  abstract formatAsync({
+    inputStream,
+    output,
+    chunkSize,
+    options,
+  }: {
+    inputStream: Readable;
+    output: Writable;
+    chunkSize?: number;
+    options?: unknown;
+  }): void;
 }
