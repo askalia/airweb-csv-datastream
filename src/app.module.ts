@@ -5,9 +5,10 @@ import { DatasetController, FormatsController } from './controllers';
 import { CommonModule } from './modules/common';
 import { FormatterModule, FormatterService } from './modules/formatters';
 import { DatasetModule, DatasetService } from './modules/datasets';
-import { FilterService } from './modules/datasets/filter';
+import { FilterService } from './modules/filters';
 import { SwaggerService, PackageService } from './services';
 import { SwaggerController } from './controllers/swagger.controller';
+import { FilterModule } from './modules/filters/filter.module';
 
 @Module({
   providers: [
@@ -17,7 +18,7 @@ import { SwaggerController } from './controllers/swagger.controller';
     SwaggerService,
     PackageService,
   ],
-  imports: [CommonModule, FormatterModule, DatasetModule],
+  imports: [CommonModule, FormatterModule, DatasetModule, FilterModule],
   controllers: [DatasetController, FormatsController, SwaggerController],
 })
 export class AppModule {}

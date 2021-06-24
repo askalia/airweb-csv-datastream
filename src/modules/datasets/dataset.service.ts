@@ -7,6 +7,7 @@ import {
   IDatasetMetadataSwagger,
 } from '../common/models';
 import { Readable } from 'stream';
+import { FilterService } from '../filters';
 
 interface DatasetRegistryItem {
   metadata: IDatasetMetadata;
@@ -19,6 +20,7 @@ export class DatasetService {
   constructor(
     @Inject('PrismaService')
     private readonly orm: PrismaService,
+    private readonly filterService: FilterService,
   ) {}
 
   public register(
@@ -39,7 +41,11 @@ export class DatasetService {
       return undefined;
     }
     const dataset = this.registry.get(id);
-    return dataset.provider.setup({ orm: this.orm, service: this });
+    return dataset.provider.setup({
+      orm: this.orm,
+      service: this,
+      filterService: this.filterService,
+    });
   }
 
   validateDataset(dataset): boolean {

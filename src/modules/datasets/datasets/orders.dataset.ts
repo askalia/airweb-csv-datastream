@@ -7,7 +7,14 @@ import { Readable } from 'stream';
 const decorator = {
   id: 'orders',
   description: 'retrieves Orders',
-  filterables: ['id', 'code', 'status', 'paymentDate', 'total'],
+  filterables: [
+    'id',
+    'code',
+    'status',
+    'paymentDate',
+    'total',
+    'transferredAt',
+  ],
 };
 
 @Injectable()
@@ -20,7 +27,8 @@ export class OrdersDataset extends IDataset {
     options: IDatasetFetchOptions<OrdersDatasetFilters>,
   ): Promise<Snapshot> {
     this.checkSetup();
-    return this?.orm?.order?.findMany({
+
+    const findManyStatement = {
       ...this.getQueryCommons<OrdersDatasetFilters>(options),
       select: {
         id: true,
@@ -30,7 +38,9 @@ export class OrdersDataset extends IDataset {
         taxFreeTotal: true,
         total: true,
       },
-    });
+    };
+
+    return this?.orm?.order?.findMany(findManyStatement);
   }
 
   fetchAsStream(options: IDatasetFetchOptions<OrdersDatasetFilters>): Readable {

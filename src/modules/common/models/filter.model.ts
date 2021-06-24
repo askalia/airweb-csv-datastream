@@ -1,4 +1,4 @@
-import { FilterOperatorSymbol } from '../../datasets/filter/filter-operators.model';
+import { FilterOperatorSymbol } from '../../filters/filter-operators.model';
 
 // type IterableFilterType = string[] | number[];
 

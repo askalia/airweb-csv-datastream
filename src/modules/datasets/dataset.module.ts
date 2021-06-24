@@ -3,7 +3,7 @@ import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
 import { CommonModule } from '../common/common.module';
 import { DATASET_TAG } from './dataset.decorator';
 import * as datasets from './datasets/index';
-import { FilterModule } from './filter';
+import { FilterModule } from '../filters';
 
 @Module({
   imports: [DiscoveryModule, CommonModule, FilterModule],
