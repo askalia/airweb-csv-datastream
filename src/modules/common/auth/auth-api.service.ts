@@ -10,7 +10,7 @@ export class AuthApiService {
       return this._validateSetup() === false
         ? true
         : this.callAuthAPI<boolean>({
-            endpoint: process.env.AUTH_API_BEARER_CHECK_URL,
+            endpoint: process.env.AUTH_API_BEARER_CHECK_ENDPOINT,
             body: { bearer },
             headers: { 'Content-Type': 'application/json' },
           });
