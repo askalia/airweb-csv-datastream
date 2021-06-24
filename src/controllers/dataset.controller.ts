@@ -36,12 +36,14 @@ import {
 } from '../pipes';
 import { ResourceMetadata } from '../modules/common/dto';
 import { DatasetExportGuard } from '../guards/dataset-export.guard';
+import { FilterService } from 'src/modules/filters';
 
 @Controller('datasets')
 export class DatasetController {
   constructor(
     private readonly _datasetService: DatasetService,
     private readonly _formatterService: FormatterService,
+    private readonly _filterService: FilterService,
   ) {}
 
   @Get('/:datasetId/export')
@@ -222,5 +224,18 @@ export class DatasetController {
   })
   async listDatasets() {
     return this._datasetService.listAllMetadata();
+  }
+
+  @Get('/filters')
+  @ApiOkResponse({
+    status: 201,
+    type: ResourceMetadata,
+    isArray: true,
+    description: 'Advanced filters available and applicable to a dataset',
+  })
+  async listAdvancedFilters() {
+    return this._filterService
+      .listTargettedProps()
+      .map(({ id, description }) => ({ id, description }));
   }
 }

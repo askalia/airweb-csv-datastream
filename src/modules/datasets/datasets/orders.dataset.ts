@@ -39,7 +39,6 @@ export class OrdersDataset extends IDataset {
         total: true,
       },
     };
-
     return this?.orm?.order?.findMany(findManyStatement);
   }
 

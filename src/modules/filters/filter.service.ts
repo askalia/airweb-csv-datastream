@@ -110,7 +110,7 @@ export class FilterService {
   }
 
   isTargettedPropOfAdvancedFilter(prop: string): boolean {
-    const allTargettedProps = this._listTargettedProps();
+    const allTargettedProps = this.listTargettedProps();
     const flatProps = allTargettedProps.reduce((acc, node) => {
       acc = [...acc, ...node.targettedProps];
       return acc;
@@ -118,7 +118,7 @@ export class FilterService {
     return flatProps.includes(prop);
   }
 
-  private _listTargettedProps(): any[] {
+  public listTargettedProps(): any[] {
     const sortAsc = (provider, providerNext) => {
       return provider.id < providerNext.id ? -1 : 1;
     };
