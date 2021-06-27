@@ -34,6 +34,10 @@ export class UsersDataset extends IDataset {
     });
   }
 
+  getSelectedFields() {
+    return [];
+  }
+
   fetchAsStream(options: IDatasetFetchOptions<UsersDatasetFilters>): Readable {
     this.checkSetup();
     return new Readable();

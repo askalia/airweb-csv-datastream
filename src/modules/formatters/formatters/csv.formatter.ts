@@ -19,6 +19,7 @@ export class CSVFormatter extends IFormatter {
       includeEmptyRows: false,
       quote: '',
       flatten: true,
+      fields: options?.fields,
     };
     return {
       formattedStream: (new CsvParser(
@@ -49,6 +50,7 @@ export class CSVFormatter extends IFormatter {
       delimiter: ';',
       includeEmptyRows: false,
       quote: '',
+      fields: options?.fields,
     };
     const transformOpts = {
       highWatermark: chunkSize,

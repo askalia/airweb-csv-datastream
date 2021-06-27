@@ -113,17 +113,20 @@ export class DatasetController {
   ) {
     const _responseAsBuffer = async (formatter: IFormatter) => {
       try {
-        const dataStream = await this._datasetService.getDatasetItems(
-          datasetId,
-          {
-            orderBy,
-            limit,
-            filters,
-          },
-        );
+        const {
+          dataStream,
+          fields,
+        } = await this._datasetService.getDatasetItems(datasetId, {
+          orderBy,
+          limit,
+          filters,
+        });
 
         const { formattedStream, contentType } = await formatter.format(
           dataStream,
+          {
+            fields,
+          },
         );
         httpResponse.setHeader('Content-Type', contentType);
 
@@ -138,19 +141,22 @@ export class DatasetController {
     };
 
     const _responseAsStream = async (formatter: IFormatter) => {
-      const dataStream = this._datasetService.getDatasetItemsAsStream(
-        datasetId,
-        {
-          orderBy,
-          limit,
-          filters,
-        },
-      );
+      const {
+        dataStream,
+        fields,
+      } = this._datasetService.getDatasetItemsAsStream(datasetId, {
+        orderBy,
+        limit,
+        filters,
+      });
 
       formatter.formatAsync({
         inputStream: dataStream,
         output: httpResponse,
         chunkSize: Number(process.env.DATASET_DEFAULT_CHUNKING),
+        options: {
+          fields,
+        },
       });
     };
 

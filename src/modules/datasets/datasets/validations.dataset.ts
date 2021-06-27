@@ -35,6 +35,10 @@ export class ValidationsDataset extends IDataset {
     });
   }
 
+  getSelectedFields() {
+    return [];
+  }
+
   fetchAsStream(
     options: IDatasetFetchOptions<ValidationsDatasetFilters>,
   ): Readable {

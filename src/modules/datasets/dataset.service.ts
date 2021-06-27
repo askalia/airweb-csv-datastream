@@ -95,7 +95,10 @@ export class DatasetService {
       limit,
       filters,
     });
-    return dataStream;
+    return {
+      dataStream,
+      fields: dataset.getSelectedFields(),
+    };
   }
 
   getDatasetItemsAsStream(
@@ -109,7 +112,7 @@ export class DatasetService {
       limit: IDatasetFetchOptions['limit'];
       filters: IDatasetFetchOptions['filters'];
     },
-  ): Readable {
+  ): { dataStream: Readable; fields: string[] } {
     const dataset = this.getDatasetById(datasetId);
     if (!this.validateDataset(dataset)) {
       throw new Error(
@@ -117,10 +120,14 @@ export class DatasetService {
       );
     }
 
-    return dataset.fetchAsStream({
-      orderBy,
-      limit,
-      filters,
-    });
+    return {
+      dataStream: dataset.fetchAsStream({
+        orderBy,
+        limit,
+        filters,
+      }),
+      fields: dataset.getSelectedFields(),
+    };
+    return;
   }
 }

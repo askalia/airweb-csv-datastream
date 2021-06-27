@@ -23,6 +23,11 @@ export class OrdersDataset extends IDataset {
   constructor() {
     super(decorator.id);
   }
+
+  getSelectedFields(): string[] {
+    return ['id', 'code', 'userId', 'networkId', 'taxFreeTotal', 'total'];
+  }
+
   async fetch(
     options: IDatasetFetchOptions<OrdersDatasetFilters>,
   ): Promise<Snapshot> {
@@ -30,14 +35,10 @@ export class OrdersDataset extends IDataset {
 
     const findManyStatement = {
       ...this.getQueryCommons<OrdersDatasetFilters>(options),
-      select: {
-        id: true,
-        code: true,
-        userId: true,
-        networkId: true,
-        taxFreeTotal: true,
-        total: true,
-      },
+      select: this.getSelectedFields().reduce((listSel, sel) => {
+        listSel[sel] = true;
+        return listSel;
+      }, {}),
     };
     return this?.orm?.order?.findMany(findManyStatement);
   }

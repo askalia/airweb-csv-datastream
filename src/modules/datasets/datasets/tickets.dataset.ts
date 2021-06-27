@@ -37,6 +37,10 @@ export class TicketsDataset extends IDataset {
     });
   }
 
+  getSelectedFields() {
+    return [];
+  }
+
   fetchAsStream(
     options: IDatasetFetchOptions<TicketsDatasetFilters>,
   ): Readable {

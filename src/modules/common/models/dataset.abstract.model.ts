@@ -37,6 +37,10 @@ export abstract class IDataset {
 
   abstract fetch(options: IDatasetFetchOptions): Promise<Snapshot>;
   abstract fetchAsStream(options: IDatasetFetchOptions): Readable;
+  /**
+   * list fields part of the Prisma query and serve as the output doc headers
+   */
+  abstract getSelectedFields(): string[];
 
   protected checkSetup() {
     if (!(this.orm instanceof PrismaService)) {
